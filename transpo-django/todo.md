@@ -1,0 +1,18 @@
+TODO
+====
+
+- base library with cli commands
+    - print lines
+    - create line
+    - create station for line
+    - replace timetable for line + station
+    - import timetable file of line + station
+    - import timetable files of line
+
+- REST API
+    - /api/v1/lines/:id
+    - /api/v1/countries/:id/regions/:id/cities/:id/
+
+- interactive docs
+    - /docs/v1/lines/
+    - /docs/v1/countries/
