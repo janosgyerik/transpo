@@ -62,7 +62,6 @@ target/
 
 # project
 virtualenv/
-settings.py
 db.sqlite3
 
 # misc
