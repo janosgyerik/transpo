@@ -23,6 +23,10 @@ Create virtualenv:
 
     ./scripts/init.sh
 
+Setup Django:
+
+    ./manage.sh migrate
+
 Run the site locally:
 
     ./run.sh
