@@ -19,6 +19,8 @@ from django.conf.urls import url, include
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
+from lines.models import Line
+
 
 # Serializers define the API representation.
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -32,9 +34,21 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
+class LineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Line
+        fields = ('name',)
+
+
+class LineViewSet(viewsets.ModelViewSet):
+    queryset = Line.objects.all()
+    serializer_class = LineSerializer
+
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
+router.register(r'api/v1/lines', LineViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
