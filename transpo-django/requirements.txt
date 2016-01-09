@@ -1,4 +1,4 @@
 # Install required python packages using pip:
 # pip install -r requirements.txt
-Django==1.8.2
-djangorestframework==3.1.2
+Django==1.9.1
+djangorestframework==3.3.2
