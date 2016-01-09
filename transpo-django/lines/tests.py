@@ -1,13 +1,14 @@
 from django.test import TestCase
 from django.utils.datetime_safe import time, datetime
 from django.utils.timezone import get_current_timezone
-from lines.models import Line, Station, DailySchedule
+from lines.models import Line, Station, DailySchedule, time_gte
 
 
 class DailyTimesTestCase(TestCase):
     line_name = 'R5'
     station_name = 'Jaures'
-    weekday_times = [time(17, 6), time(17, 26), time(17, 46)]
+    weekday_times = [time(17, 6), time(17, 26), time(17, 46),
+                     time(18, 6), time(18, 26), time(18, 46)]
     saturday_times = [time(17, 6)]
 
     def times(self, day):
@@ -35,6 +36,58 @@ class DailyTimesTestCase(TestCase):
 
     def test_times_on_sunday(self):
         self.assertEquals([], self.times(DailySchedule.SUNDAY))
+
+    def test_next_times_when_empty(self):
+        self.assertEquals([], self.station.next_daily_times(DailySchedule.SUNDAY, time(0, 0)))
+
+    def test_next_times_before_first(self):
+        day = DailySchedule.MONDAY
+        before_first = time(0, 0)
+        count = 3
+        self.assertEquals(self.weekday_times[:count], self.station.next_daily_times(day, before_first, count))
+        count = 4
+        self.assertEquals(self.weekday_times[:count], self.station.next_daily_times(day, before_first, count))
+        self.assertTrue(count < len(self.weekday_times))
+
+    def test_next_times_after_first(self):
+        day = DailySchedule.MONDAY
+        after_first = self.weekday_times[1]
+        times = self.weekday_times[1:]
+        count = 3
+        self.assertEquals(times[:count], self.station.next_daily_times(day, after_first, count))
+        count = 4
+        self.assertEquals(times[:count], self.station.next_daily_times(day, after_first, count))
+        self.assertTrue(count < len(times))
+
+    def test_next_times_at_last(self):
+        day = DailySchedule.MONDAY
+        at_last = self.weekday_times[-1]
+        times = self.weekday_times[-1:]
+        count = 3
+        self.assertEquals(times[:count], self.station.next_daily_times(day, at_last, count))
+        count = 4
+        self.assertEquals(times[:count], self.station.next_daily_times(day, at_last, count))
+        self.assertEquals(1, len(self.station.next_daily_times(day, at_last, count)))
+
+    def test_time_gte_all_for_min(self):
+        times = [time(0, 0), time(5, 5), time(7, 7)]
+        self.assertEquals(times, time_gte(times, time.min))
+
+    def test_time_gte_all_for_first(self):
+        times = [time(0, 0), time(5, 5), time(7, 7)]
+        self.assertEquals(times, time_gte(times, time.min))
+
+    def test_time_gte_some(self):
+        times = [time(0, 0), time(5, 5), time(7, 7)]
+        self.assertEquals(times[1:], time_gte(times, times[1]))
+
+    def test_time_gte_last_for_last(self):
+        times = [time(0, 0), time(5, 5), time(7, 7)]
+        self.assertEquals(times[-1:], time_gte(times, times[-1]))
+
+    def test_time_gte_none_for_max(self):
+        times = [time(0, 0), time(5, 5), time(7, 7)]
+        self.assertEquals([], time_gte(times, time.max))
 
 
 class GeneralScheduleTestCase(TestCase):

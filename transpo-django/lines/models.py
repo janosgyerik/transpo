@@ -5,6 +5,10 @@ class Line(models.Model):
     name = models.CharField(max_length=200)
 
 
+def time_gte(times, t):
+    return list(filter(lambda x: t <= x, times))
+
+
 class Station(models.Model):
     line = models.ForeignKey(Line)
     name = models.CharField(max_length=200)
@@ -16,6 +20,9 @@ class Station(models.Model):
 
     def daily_times(self, day):
         return [s.time for s in DailySchedule.objects.filter(station=self, day=day)]
+
+    def next_daily_times(self, day, t, count=3):
+        return time_gte(self.daily_times(day), t)[:count]
 
     def register_dates(self, dates):
         for date in dates:
