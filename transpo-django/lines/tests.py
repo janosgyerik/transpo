@@ -1,5 +1,6 @@
 from django.test import TestCase
-from django.utils.datetime_safe import time
+from django.utils.datetime_safe import time, datetime
+from django.utils.timezone import get_current_timezone
 from lines.models import Line, Station, DailySchedule
 
 
@@ -29,3 +30,19 @@ class DailyTimesTestCase(TestCase):
 
     def test_times_on_sunday(self):
         self.assertEquals([], self.times(DailySchedule.SUNDAY))
+
+
+class GeneralScheduleTestCase(TestCase):
+    def test_nonempty_dates(self):
+        dates = [datetime(2016, 1, 19, 9, 41, tzinfo=get_current_timezone())]
+        line = Line.objects.create(name='TGV 6911')
+        station = Station.objects.create(line=line, name='Paris-Gare-de-Lyon')
+        station.register_dates(dates=dates)
+        self.assertEquals(dates, station.dates())
+
+    def test_empty_dates(self):
+        dates = []
+        line = Line.objects.create(name='TGV 6911')
+        station = Station.objects.create(line=line, name='Paris-Gare-de-Lyon')
+        station.register_dates(dates=dates)
+        self.assertEquals(dates, station.dates())

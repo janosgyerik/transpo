@@ -17,6 +17,13 @@ class Station(models.Model):
     def daily_times(self, day):
         return [s.time for s in DailySchedule.objects.filter(station=self, day=day)]
 
+    def register_dates(self, dates):
+        for date in dates:
+            GeneralSchedule.objects.create(station=self, date=date)
+
+    def dates(self):
+        return [s.date for s in GeneralSchedule.objects.filter(station=self)]
+
 
 class DailySchedule(models.Model):
     MONDAY = 'mon'
@@ -28,3 +35,8 @@ class DailySchedule(models.Model):
     station = models.ForeignKey(Station)
     day = models.CharField(max_length=30)
     time = models.TimeField()
+
+
+class GeneralSchedule(models.Model):
+    station = models.ForeignKey(Station)
+    date = models.DateTimeField()
