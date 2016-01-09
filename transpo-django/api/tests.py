@@ -61,8 +61,7 @@ class LineTestCase(APITestCase):
         ]
         self.assertEquals(expected, results)
 
-# request = self.factory.get('/api/v1/lines')
-# request = self.factory.get('/api/v1/stations/:id/times')
+# TODO
 # request = self.factory.get('/api/v1/stations/:id/times?date=')
 # request = self.factory.get('/api/v1/users/:id/locations')
 # request = self.factory.get('/api/v1/users/:id/locations/:id')
