@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from lines import models
 
 
-class StationsTestCase(APITestCase):
+class StationTestCase(APITestCase):
     def test_no_stations(self):
         url = reverse('station-list')
         response = self.client.get(url)
