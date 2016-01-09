@@ -13,7 +13,7 @@ request = self.factory.get('/api/v1/users/:id/locations/:id/times')
 request = self.factory.get('/api/v1/users/:id/locations/:id/times?date=')
 '''
 router = routers.DefaultRouter()
-# router.register(r'lines', views.LineViewSet)
+router.register(r'lines', views.LineViewSet)
 router.register(r'stations', views.StationViewSet)
 # router.register(r'stations/(?P<station_id>[^/.]+)', views.StationViewSet)
 router.register(r'stations/(?P<station_id>[^/.]+)/times', views.StationTimesViewSet)

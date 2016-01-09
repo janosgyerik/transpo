@@ -10,3 +10,8 @@ class DailyScheduleSerializer(serializers.ModelSerializer):
 class StationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Station
+
+
+class LineSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Line

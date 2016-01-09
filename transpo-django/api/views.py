@@ -22,3 +22,8 @@ class StationTimesViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(times, many=True)
         return Response(serializer.data)
+
+
+class LineViewSet(viewsets.ModelViewSet):
+    queryset = models.Line.objects.all()
+    serializer_class = serializers.LineSerializer
