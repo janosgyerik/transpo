@@ -1,12 +1,9 @@
 from django.db import models
+from lines.utils import times_gte
 
 
 class Line(models.Model):
     name = models.CharField(max_length=200)
-
-
-def time_gte(times, t):
-    return list(filter(lambda x: t <= x, times))
 
 
 class Station(models.Model):
@@ -22,7 +19,7 @@ class Station(models.Model):
         return [s.time for s in DailySchedule.objects.filter(station=self, day=day)]
 
     def next_daily_times(self, day, t, count=3):
-        return time_gte(self.daily_times(day), t)[:count]
+        return times_gte(self.daily_times(day), t)[:count]
 
     def register_dates(self, dates):
         for date in dates:

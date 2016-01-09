@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.utils.datetime_safe import time, datetime
 from django.utils.timezone import get_current_timezone
-from lines.models import Line, Station, DailySchedule, time_gte
+from lines.models import Line, Station, DailySchedule
+from lines.utils import times_gte
 
 
 class DailyTimesTestCase(TestCase):
@@ -71,23 +72,23 @@ class DailyTimesTestCase(TestCase):
 
     def test_time_gte_all_for_min(self):
         times = [time(0, 0), time(5, 5), time(7, 7)]
-        self.assertEquals(times, time_gte(times, time.min))
+        self.assertEquals(times, times_gte(times, time.min))
 
     def test_time_gte_all_for_first(self):
         times = [time(0, 0), time(5, 5), time(7, 7)]
-        self.assertEquals(times, time_gte(times, time.min))
+        self.assertEquals(times, times_gte(times, time.min))
 
     def test_time_gte_some(self):
         times = [time(0, 0), time(5, 5), time(7, 7)]
-        self.assertEquals(times[1:], time_gte(times, times[1]))
+        self.assertEquals(times[1:], times_gte(times, times[1]))
 
     def test_time_gte_last_for_last(self):
         times = [time(0, 0), time(5, 5), time(7, 7)]
-        self.assertEquals(times[-1:], time_gte(times, times[-1]))
+        self.assertEquals(times[-1:], times_gte(times, times[-1]))
 
     def test_time_gte_none_for_max(self):
         times = [time(0, 0), time(5, 5), time(7, 7)]
-        self.assertEquals([], time_gte(times, time.max))
+        self.assertEquals([], times_gte(times, time.max))
 
 
 class GeneralScheduleTestCase(TestCase):
