@@ -21,7 +21,7 @@ class Station(models.Model):
         return [s.time for s in DailySchedule.objects.filter(station=self, day=day)]
 
     def next_daily_times(self, day, t=None, count=3):
-        if not t:
+        if t is None:
             t = timezone.now().time()
         return times_gte(self.daily_times(day), t)[:count]
 
