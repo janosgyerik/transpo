@@ -2,7 +2,7 @@ from rest_framework import serializers
 from lines import models
 
 
-class DailyScheduleSerializer(serializers.ModelSerializer):
+class DailyScheduleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.DailySchedule
 

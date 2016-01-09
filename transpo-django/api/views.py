@@ -27,3 +27,8 @@ class StationTimesViewSet(viewsets.ModelViewSet):
 class LineViewSet(viewsets.ModelViewSet):
     queryset = models.Line.objects.all()
     serializer_class = serializers.LineSerializer
+
+
+class DailyScheduleViewSet(viewsets.ModelViewSet):
+    queryset = models.DailySchedule.objects.all()
+    serializer_class = serializers.DailyScheduleSerializer
