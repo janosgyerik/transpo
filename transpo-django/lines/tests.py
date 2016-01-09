@@ -4,6 +4,7 @@ from django.utils.datetime_safe import time, datetime
 from django.utils.timezone import get_current_timezone
 from lines.models import Line, Station, DailySchedule, Location
 from lines.utils import times_gte
+from rest_framework.test import APIRequestFactory
 
 
 class DailyTimesTestCase(TestCase):
@@ -176,3 +177,18 @@ class LocationTestCase(TestCase):
             (self.line1, time(17, 11)),
         ]
         self.assertEquals(expected, times)
+
+
+class BasicRestTestCase(TestCase):
+
+    factory = APIRequestFactory()
+
+    def test_rest(self):
+        request = self.factory.get('/api/v1/lines')
+        request = self.factory.get('/api/v1/stations')
+        request = self.factory.get('/api/v1/stations/:id/times')
+        request = self.factory.get('/api/v1/stations/:id/times?date=')
+        request = self.factory.get('/api/v1/users/:id/locations')
+        request = self.factory.get('/api/v1/users/:id/locations/:id')
+        request = self.factory.get('/api/v1/users/:id/locations/:id/times')
+        request = self.factory.get('/api/v1/users/:id/locations/:id/times?date=')
