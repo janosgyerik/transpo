@@ -5,6 +5,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from lines import models
 
+TESTSERVER_URL = 'http://testserver'
+
 
 class StationTestCase(APITestCase):
     def test_no_stations(self):
@@ -28,9 +30,9 @@ class StationTestCase(APITestCase):
 
         expected = [
             {
+                'url': TESTSERVER_URL + reverse('station-detail', kwargs={'pk': station.id}),
                 'name': station_name,
-                'id': station.id,
-                'line': line.id,
+                'line': TESTSERVER_URL + reverse('line-detail', kwargs={'pk': line.id}),
             }
         ]
         self.assertEquals(expected, results)
@@ -56,7 +58,7 @@ class LineTestCase(APITestCase):
         expected = [
             {
                 'name': line.name,
-                'url': 'http://testserver' + reverse('line-detail', kwargs={'pk': line.id})
+                'url': TESTSERVER_URL + reverse('line-detail', kwargs={'pk': line.id})
             }
         ]
         self.assertEquals(expected, results)
