@@ -1,7 +1,8 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils.datetime_safe import time, datetime
 from django.utils.timezone import get_current_timezone
-from lines.models import Line, Station, DailySchedule
+from lines.models import Line, Station, DailySchedule, Location
 from lines.utils import times_gte
 
 
@@ -105,3 +106,73 @@ class GeneralScheduleTestCase(TestCase):
         station = Station.objects.create(line=line, name='Paris-Gare-de-Lyon')
         station.register_dates(dates=dates)
         self.assertEquals(dates, station.dates())
+
+
+class LocationTestCase(TestCase):
+    def setUp(self):
+        station_name = 'Saint-Germain-en-Laye'
+
+        self.line1 = Line.objects.create(name='R1')
+        self.station1 = Station.objects.create(name=station_name, line=self.line1)
+
+        self.line2 = Line.objects.create(name='R5')
+        self.station2 = Station.objects.create(name=station_name, line=self.line2)
+
+        user = User.objects.create()
+        self.location = Location.objects.create(user=user, name='Work')
+        self.location.stations.add(self.station1, self.station2)
+
+    def test_combined_times_all_from_line1(self):
+        day = DailySchedule.MONDAY
+        other_day = DailySchedule.TUESDAY
+
+        self.station1.register_daily_times([day], [time(17, 1), time(17, 11), time(17, 21), time(17, 31)])
+        self.station2.register_daily_times([other_day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])
+
+        t = time.min
+        count = 3
+        times = self.location.next_daily_times(day, t, count)
+        self.assertEquals(count, len(times))
+
+        expected = [
+            (self.line1, time(17, 1)),
+            (self.line1, time(17, 11)),
+            (self.line1, time(17, 21)),
+        ]
+        self.assertEquals(expected, times)
+
+    def test_combined_times_all_from_line2(self):
+        day = DailySchedule.MONDAY
+
+        self.station1.register_daily_times([day], [time(11, 1), time(11, 11), time(11, 21), time(11, 31)])
+        self.station2.register_daily_times([day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])
+
+        t = time(17, 1)
+        count = 3
+        times = self.location.next_daily_times(day, t, count)
+        self.assertEquals(count, len(times))
+
+        expected = [
+            (self.line2, time(17, 6)),
+            (self.line2, time(17, 26)),
+            (self.line2, time(17, 46)),
+        ]
+        self.assertEquals(expected, times)
+
+    def test_combined_times_mix_from_both_line1_first(self):
+        day = DailySchedule.MONDAY
+
+        self.station1.register_daily_times([day], [time(17, 1), time(17, 11), time(17, 21), time(17, 31)])
+        self.station2.register_daily_times([day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])
+
+        t = time.min
+        count = 3
+        times = self.location.next_daily_times(day, t, count)
+        self.assertEquals(count, len(times))
+
+        expected = [
+            (self.line1, time(17, 1)),
+            (self.line2, time(17, 6)),
+            (self.line1, time(17, 11)),
+        ]
+        self.assertEquals(expected, times)

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from lines.utils import times_gte
@@ -47,3 +48,18 @@ class DailySchedule(models.Model):
 class GeneralSchedule(models.Model):
     station = models.ForeignKey(Station)
     date = models.DateTimeField()
+
+
+class Location(models.Model):
+    user = models.ForeignKey(User)
+    name = models.CharField(max_length=200)
+    stations = models.ManyToManyField(Station)
+
+    def next_daily_times(self, day, t=None, count=3):
+        result = []
+        for station in self.stations.all():
+            for t2 in station.next_daily_times(day, t, count):
+                result.append((station.line, t2))
+
+        result = sorted(result, key=lambda x: x[1])
+        return result[:count]
