@@ -9,8 +9,8 @@ class Line(models.Model):
 
 
 class Station(models.Model):
-    line = models.ForeignKey(Line)
     name = models.CharField(max_length=200)
+    line = models.ForeignKey(Line)
 
     def register_daily_times(self, days, times):
         for day in days:
