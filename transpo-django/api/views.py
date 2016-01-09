@@ -4,7 +4,7 @@ from api import serializers
 from rest_framework.response import Response
 
 
-class StationListViewSet(viewsets.ModelViewSet):
+class StationViewSet(viewsets.ModelViewSet):
     queryset = models.Station.objects.all()
     serializer_class = serializers.StationSerializer
 
