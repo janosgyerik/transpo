@@ -6,38 +6,25 @@ class Line(models.Model):
 
 
 class Station(models.Model):
+    line = models.ForeignKey(Line)
     name = models.CharField(max_length=200)
 
+    def register_times(self, days, times):
+        for day in days:
+            for time in times:
+                Schedule.objects.create(station=self, day=day, time=time)
 
-class LineStation(models.Model):
-    line = models.ForeignKey(Line)
+    def times(self, day):
+        return [s.time for s in Schedule.objects.filter(station=self, day=day)]
+
+
+class Schedule(models.Model):
+    MONDAY = 'mon'
+    TUESDAY = 'tue'
+    SATURDAY = 'sat'
+    SUNDAY = 'sun'
+    WEEKDAYS = [MONDAY, TUESDAY]
+
     station = models.ForeignKey(Station)
-
-
-class DailyScheduleDescriptor(models.Model):
-    # comma separated value of short weekday names
-    # example: sat, sun
-    # example: mon, wed, thu, fri
-    days = models.CharField(max_length=100)
-
-
-class LineStationDailySchedule(models.Model):
-    line = models.ForeignKey(Line)
-    station = models.ForeignKey(Station)
-
-    # exceptional days should come first to be matched first
-    priority = models.IntegerField()
-
-    descriptor = models.ForeignKey(DailyScheduleDescriptor)
-
-
-class DailyScheduleTime(models.Model):
-    schedule = models.ForeignKey(LineStationDailySchedule)
-    hour = models.IntegerField()
-    minute = models.IntegerField()
-
-
-class LineStationGenericSchedule(models.Model):
-    line = models.ForeignKey(Line)
-    station = models.ForeignKey(Station)
-    date = models.DateTimeField()
+    day = models.CharField(max_length=30)
+    time = models.TimeField()
