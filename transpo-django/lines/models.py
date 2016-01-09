@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from lines.utils import times_gte
 
 
@@ -18,7 +19,9 @@ class Station(models.Model):
     def daily_times(self, day):
         return [s.time for s in DailySchedule.objects.filter(station=self, day=day)]
 
-    def next_daily_times(self, day, t, count=3):
+    def next_daily_times(self, day, t=None, count=3):
+        if not t:
+            t = timezone.now().time()
         return times_gte(self.daily_times(day), t)[:count]
 
     def register_dates(self, dates):
