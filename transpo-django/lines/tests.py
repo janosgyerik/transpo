@@ -19,6 +19,11 @@ class DailyTimesTestCase(TestCase):
         station.register_daily_times(days=DailySchedule.WEEKDAYS, times=self.weekday_times)
         station.register_daily_times(days=[DailySchedule.SATURDAY], times=self.saturday_times)
 
+        dummy_line = Line.objects.create(name='dummy line')
+        dummy_station = Station.objects.create(line=dummy_line, name='dummy station')
+        dummy_station.register_daily_times(days=[DailySchedule.MONDAY], times=self.weekday_times)
+        dummy_station.register_daily_times(days=[DailySchedule.SUNDAY], times=self.saturday_times)
+
     def test_times_on_monday(self):
         self.assertEquals(self.weekday_times, self.times(DailySchedule.MONDAY))
 
