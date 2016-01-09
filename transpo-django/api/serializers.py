@@ -7,7 +7,7 @@ class DailyScheduleSerializer(serializers.ModelSerializer):
         model = models.DailySchedule
 
 
-class StationSerializer(serializers.ModelSerializer):
+class StationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Station
 
