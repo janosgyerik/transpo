@@ -16,10 +16,8 @@ class StationTestCase(APITestCase):
         self.assertEquals([], json.loads(response.content.decode()))
 
     def test_one_station(self):
-        station_name = 'Saint-Germain-en-Laye'
-
         line = models.Line.objects.create(name='R5')
-        station = models.Station.objects.create(name=station_name, line=line)
+        station = models.Station.objects.create(name='Saint-Germain-en-Laye', line=line)
 
         url = reverse('station-list')
         response = self.client.get(url)
@@ -31,7 +29,7 @@ class StationTestCase(APITestCase):
         expected = [
             {
                 'url': TESTSERVER_URL + reverse('station-detail', kwargs={'pk': station.id}),
-                'name': station_name,
+                'name': station.name,
                 'line': TESTSERVER_URL + reverse('line-detail', kwargs={'pk': line.id}),
             }
         ]
