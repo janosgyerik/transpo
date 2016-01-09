@@ -9,16 +9,16 @@ class Station(models.Model):
     line = models.ForeignKey(Line)
     name = models.CharField(max_length=200)
 
-    def register_times(self, days, times):
+    def register_daily_times(self, days, times):
         for day in days:
             for time in times:
-                Schedule.objects.create(station=self, day=day, time=time)
+                DailySchedule.objects.create(station=self, day=day, time=time)
 
-    def times(self, day):
-        return [s.time for s in Schedule.objects.filter(station=self, day=day)]
+    def daily_times(self, day):
+        return [s.time for s in DailySchedule.objects.filter(station=self, day=day)]
 
 
-class Schedule(models.Model):
+class DailySchedule(models.Model):
     MONDAY = 'mon'
     TUESDAY = 'tue'
     SATURDAY = 'sat'
