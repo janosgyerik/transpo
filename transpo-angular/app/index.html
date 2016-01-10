@@ -21,6 +21,14 @@
           </li>
         </ul>
       </div>
+      <div class="col-md-4" ng-controller="StationTimesListCtrl">
+        <h4>Times</h4>
+        <ul class="stationTimes">
+          <li ng-repeat="st in stationTimes">
+            <span>{{st.station}} - {{st.time}} - {{st.day}}</span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>

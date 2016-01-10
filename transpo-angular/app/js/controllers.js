@@ -18,3 +18,10 @@ transpoApp.controller('StationListCtrl', ['$scope', '$http', function($scope, $h
     $scope.stations = data;
   });
 }]);
+
+transpoApp.controller('StationTimesListCtrl', ['$scope', '$http', function($scope, $http) {
+  var url = 'http://127.0.0.1:8000/api/v1/stations/1/times/?date=';
+  $http.get(url).success(function(data) {
+    $scope.stationTimes = data;
+  });
+}]);
