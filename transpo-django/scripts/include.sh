@@ -1,6 +1,6 @@
 . ./virtualenv.sh
 
-apps=($(ls */tests.py | cut -d/ -f1))
+apps=($(git ls-files | awk -F/ '$0 ~ "/tests.py$" {print $(NF - 1)}'))
 
 langs=($(ls -d */locale/??/ 2>/dev/null | cut -d/ -f3 | sort -u))
 
