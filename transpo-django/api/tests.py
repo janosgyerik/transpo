@@ -1,8 +1,11 @@
 import json
+from datetime import timedelta
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.datetime_safe import time
+from django.utils import timezone
+from django.utils.timezone import datetime
 from rest_framework import status
 from rest_framework.test import APITestCase
 from lines import models
@@ -85,7 +88,7 @@ class StationTimesFormTestCase(TestCase):
         self.assertIsNone(form.cleaned_data['date'])
 
     def test_valid_date_as_ymd(self):
-        datestr = '2016-01-10'
+        datestr = '2016-01-09'
         form = views.StationTimesForm({'date': datestr})
         self.assertTrue(form.is_valid())
         self.assertEquals(datestr, form.data['date'])
@@ -113,6 +116,37 @@ class StationTimesFormTestCase(TestCase):
         self.assertEquals(timestr, form.data['time'])
         self.assertEquals(time(10, 21), form.cleaned_data['time'])
 
+    def test_parse_date_with_no_date_no_time_gives_none(self):
+        form = views.StationTimesForm({})
+        self.assertTrue(form.is_valid())
+        self.assertIsNone(form.parse_date())
+
+    def test_parse_date_with_empty_date_gives_now_with_time(self):
+        date = timezone.now()
+        form = views.StationTimesForm({'date': ''})
+        self.assertTrue(form.is_valid())
+        self.assertLessEqual(abs(form.parse_date() - date), timedelta(minutes=1))
+
+    def test_parse_date_with_date_gives_date(self):
+        date = timezone.now()
+        form = views.StationTimesForm({'date': date})
+        self.assertTrue(form.is_valid())
+        self.assertEquals(date, form.parse_date())
+
+    def test_parse_date_with_time_gives_now_with_time(self):
+        t = time(12, 34)
+        date = timezone.now().replace(hour=t.hour, minute=t.minute)
+        form = views.StationTimesForm({'time': t})
+        self.assertTrue(form.is_valid())
+        self.assertLessEqual(abs(form.parse_date() - date), timedelta(minutes=1))
+
+    def test_parse_date_with_date_and_time_gives_date_with_time(self):
+        t = time(12, 34)
+        date = timezone.now().replace(year=2016, month=1, day=9)
+        form = views.StationTimesForm({'date': date, 'time': t})
+        date = date.replace(hour=t.hour, minute=t.minute)
+        self.assertTrue(form.is_valid())
+        self.assertLessEqual(abs(form.parse_date() - date), timedelta(minutes=1))
 
 # TODO
 # request = self.factory.get('/api/v1/stations/:id/times?date=')

@@ -1,5 +1,7 @@
 from django import forms
-from rest_framework import viewsets
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework import viewsets, status
 from lines import models
 from api import serializers
 from rest_framework.response import Response
@@ -13,6 +15,21 @@ class StationViewSet(viewsets.ModelViewSet):
 class StationTimesForm(forms.Form):
     date = forms.DateTimeField(required=False)
     time = forms.TimeField(required=False)
+
+    def parse_date(self):
+        if self.cleaned_data['date'] is not None:
+            date = self.cleaned_data['date']
+        elif 'date' in self.data:
+            date = timezone.now()
+        else:
+            date = None
+
+        if self.cleaned_data['time'] is not None:
+            t = self.cleaned_data['time']
+            if date is None:
+                date = timezone.now()
+            date = date.replace(hour=t.hour, minute=t.minute)
+        return date
 
 
 class StationTimesViewSet(viewsets.ModelViewSet):
