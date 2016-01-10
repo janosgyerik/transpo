@@ -63,11 +63,9 @@ class Location(models.Model):
     name = models.CharField(max_length=200)
     stations = models.ManyToManyField(Station)
 
-    def next_daily_times(self, day, t=None, count=3):
+    def next_daily_times(self, date=None):
         result = []
         for station in self.stations.all():
-            for t2 in station.next_daily_times(day, t, count):
-                result.append((station.line, t2))
+            result += list(station.next_daily_times(date))
 
-        result = sorted(result, key=lambda x: x[1])
-        return result[:count]
+        return sorted(result, key=lambda x: x.time)

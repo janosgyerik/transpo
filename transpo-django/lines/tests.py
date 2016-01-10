@@ -126,57 +126,60 @@ class LocationTestCase(TestCase):
         self.location = Location.objects.create(user=user, name='Work')
         self.location.stations.add(self.station1, self.station2)
 
+    def _linetimes(self, dailyschedules):
+        return [(s.station.line, s.time) for s in dailyschedules]
+
     def test_combined_times_all_from_line1(self):
-        day = DailySchedule.MONDAY
-        other_day = DailySchedule.TUESDAY
+        date = timezone.now().date()
+        day = date.strftime('%a')
+
+        other_date = date + timedelta(days=1)
+        other_day = other_date.strftime('%a')
 
         self.station1.register_daily_times([day], [time(17, 1), time(17, 11), time(17, 21), time(17, 31)])
         self.station2.register_daily_times([other_day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])
 
-        t = time.min
-        count = 3
-        times = self.location.next_daily_times(day, t, count)
-        self.assertEquals(count, len(times))
+        times = self._linetimes(self.location.next_daily_times(date))
 
         expected = [
             (self.line1, time(17, 1)),
             (self.line1, time(17, 11)),
             (self.line1, time(17, 21)),
+            (self.line1, time(17, 31)),
         ]
         self.assertEquals(expected, times)
 
     def test_combined_times_all_from_line2(self):
-        day = DailySchedule.MONDAY
+        date = timezone.now().replace(hour=17, minute=1)
+        day = date.strftime('%a')
 
         self.station1.register_daily_times([day], [time(11, 1), time(11, 11), time(11, 21), time(11, 31)])
         self.station2.register_daily_times([day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])
 
-        t = time(17, 1)
-        count = 3
-        times = self.location.next_daily_times(day, t, count)
-        self.assertEquals(count, len(times))
+        times = self._linetimes(self.location.next_daily_times(date))
 
         expected = [
             (self.line2, time(17, 6)),
             (self.line2, time(17, 26)),
             (self.line2, time(17, 46)),
+            (self.line2, time(18, 6)),
         ]
         self.assertEquals(expected, times)
 
     def test_combined_times_mix_from_both_line1_first(self):
-        day = DailySchedule.MONDAY
+        date = timezone.now().replace(hour=17, minute=20)
+        day = date.strftime('%a')
 
         self.station1.register_daily_times([day], [time(17, 1), time(17, 11), time(17, 21), time(17, 31)])
         self.station2.register_daily_times([day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])
 
-        t = time.min
-        count = 3
-        times = self.location.next_daily_times(day, t, count)
-        self.assertEquals(count, len(times))
+        times = self._linetimes(self.location.next_daily_times(date))
 
         expected = [
-            (self.line1, time(17, 1)),
-            (self.line2, time(17, 6)),
-            (self.line1, time(17, 11)),
+            (self.line1, time(17, 21)),
+            (self.line2, time(17, 26)),
+            (self.line1, time(17, 31)),
+            (self.line2, time(17, 46)),
+            (self.line2, time(18, 6)),
         ]
         self.assertEquals(expected, times)

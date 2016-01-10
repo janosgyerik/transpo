@@ -8,13 +8,6 @@ when searching for daily times:
     check for 'holidays' for holidays
         in the absence of a holiday calendar, can force it with a param 
 
-review next_daily_times
-    get the tests working again
-    eliminate count
-    use date param
-    use %a values for days
-    return query rather than simplified time 
-
 create dummy plain text view
 create dummy html view
 
@@ -24,6 +17,8 @@ create command to import from simple file (not scraping)
     manually enter from latest schedule
 
 deploy and test from phone
+
+centralize strftime('%a')
 
 
 old
