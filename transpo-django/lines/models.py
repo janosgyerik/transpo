@@ -20,10 +20,15 @@ class Station(models.Model):
     def daily_times(self, day):
         return [s.time for s in DailySchedule.objects.filter(station=self, day=day)]
 
-    def next_daily_times(self, day, t=None, count=3):
-        if t is None:
-            t = timezone.now().time()
-        return times_gte(self.daily_times(day), t)[:count]
+    def next_daily_times(self, date=None):
+        query = self.dailyschedule_set.all()
+        if date is not None:
+            day = '{:%a}'.format(date)
+            # note: strange that this doesn't work:
+            # timestr = '{:%H:%M}'.format(date.time)
+            timestr = date.strftime('%H:%M')
+            query = query.filter(day=day, time__gte=timestr)
+        return query
 
     def register_dates(self, dates):
         for date in dates:
@@ -34,10 +39,10 @@ class Station(models.Model):
 
 
 class DailySchedule(models.Model):
-    MONDAY = 'mon'
-    TUESDAY = 'tue'
-    SATURDAY = 'sat'
-    SUNDAY = 'sun'
+    MONDAY = 'Mon'
+    TUESDAY = 'Tue'
+    SATURDAY = 'Sat'
+    SUNDAY = 'Sun'
     WEEKDAYS = [MONDAY, TUESDAY]
 
     station = models.ForeignKey(Station)

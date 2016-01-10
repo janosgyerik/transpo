@@ -38,8 +38,13 @@ class StationTimesViewSet(viewsets.ModelViewSet):
 
     def list(self, request, station_id):
         form = StationTimesForm(request.GET)
+        if not form.is_valid():
+            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        times = models.DailySchedule.objects.filter(station_id=station_id)
+        station = get_object_or_404(models.Station, pk=station_id)
+        date = form.parse_date()
+        times = station.next_daily_times(date)
+
         page = self.paginate_queryset(times)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

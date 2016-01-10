@@ -42,6 +42,115 @@ class StationTestCase(APITestCase):
         self.assertEquals(expected, results)
 
 
+class StationTimesTestCase(TestCase):
+    times = [time(17, 6), time(17, 26), time(17, 46), time(18, 6), time(18, 26)]
+
+    service_date = datetime(2016, 1, 11)
+    service_date_6pm = datetime(2016, 1, 11, 18)
+    service_datestr = service_date.strftime( '%Y-%m-%d')
+    service_day = models.DailySchedule.MONDAY
+
+    nonservice_date = datetime(2016, 1, 10)
+    nonservice_datestr = nonservice_date.strftime( '%Y-%m-%d')
+    nonservice_day = models.DailySchedule.SUNDAY
+
+    def baseurl(self, station_id=None):
+        if station_id is None:
+            station_id = self.station.id
+        return reverse('station-times-list', kwargs={'station_id': station_id})
+
+    def to_json(self, response):
+        return json.loads(response.content.decode())
+
+    def to_times(self, json_times):
+        def to_time(s):
+            parts = s.split(':')
+            return time(int(parts[0]), int(parts[1]))
+        return [to_time(s['time']) for s in json_times]
+
+    def setUp(self):
+        self.line = line = models.Line.objects.create(name='R5')
+        self.station = station = models.Station.objects.create(name='Saint-Germain-en-Laye', line=line)
+        station.register_daily_times([self.service_day], self.times)
+
+    def test_nonexistent_station_gives_404(self):
+        url = self.baseurl(self.station.id + 1)
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_404_NOT_FOUND, response.status_code)
+        self.assertEquals({'detail': 'Not found.'}, self.to_json(response))
+
+    def test_all_times(self):
+        url = self.baseurl()
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+
+        results = self.to_json(response)
+        self.assertEquals(len(self.times), len(results))
+
+    def test_invalid_date_param(self):
+        url = self.baseurl() + '?date=malformed'
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+        expected = {
+            'date': ['Enter a valid date/time.']
+        }
+        self.assertEquals(expected, self.to_json(response))
+
+    def test_invalid_time_param(self):
+        url = self.baseurl() + '?time=malformed'
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+        expected = {
+            'time': ['Enter a valid time.']
+        }
+        self.assertEquals(expected, self.to_json(response))
+
+    def test_all_times_on_service_day_by_date(self):
+        url = self.baseurl() + '?date=' + self.service_datestr
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(self.times, self.to_times(self.to_json(response)))
+
+    def test_no_times_on_nonservice_day_by_date(self):
+        url = self.baseurl() + '?date=' + self.nonservice_datestr
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals([], self.to_json(response))
+
+    def test_all_times_on_service_day_by_time(self):
+        everyday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        self.station.register_daily_times(everyday, self.times)
+        url = self.baseurl() + '?time=00:00'
+
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(self.times, self.to_times(self.to_json(response)))
+
+    def test_no_times_on_nonservice_day_by_time(self):
+        self.station.dailyschedule_set.all().delete()
+        url = self.baseurl() + '?time=00:00'
+
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals([], self.to_times(self.to_json(response)))
+
+    def test_times_after_6pm_by_date(self):
+        url = self.baseurl() + '?date=' + self.service_datestr + ' 18:00'
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(self.times[3:], self.to_times(self.to_json(response)))
+
+    def test_times_after_6pm_by_time(self):
+        everyday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        self.station.register_daily_times(everyday, self.times)
+        url = self.baseurl() + '?time=18:00'
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(self.times[3:], self.to_times(self.to_json(response)))
+
+
 class LineTestCase(APITestCase):
     def test_no_lines(self):
         url = reverse('line-list')

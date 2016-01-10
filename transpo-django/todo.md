@@ -1,19 +1,19 @@
 TODO
 ====
 
-/api/v1/station/:id/times?
-  date=      # means "now"
-  date=date  # extract time; extract weekday
-  time=time  # use time; take current weekday
+when searching for daily times:
+    check for 'daily'
+    check for 'weekdays' for weekdays
+    check for 'weekends' for weekends
+    check for 'holidays' for holidays
+        in the absence of a holiday calendar, can force it with a param 
 
-create form to validate -> tdd
-    see how djinn validated form params
-
-if valid, apply filters
-    try to use sql filters, not python
-
-tdd getting times for specified date
-tdd getting times for specified time (same schedule every day)
+review next_daily_times
+    get the tests working again
+    eliminate count
+    use date param
+    use %a values for days
+    return query rather than simplified time 
 
 create dummy plain text view
 create dummy html view
