@@ -1,6 +1,34 @@
 TODO
 ====
 
+/api/v1/station/:id/times?
+  date=      # means "now"
+  date=date  # extract time; extract weekday
+  time=time  # use time; take current weekday
+
+create form to validate -> tdd
+    see how djinn validated form params
+
+if valid, apply filters
+    try to use sql filters, not python
+
+tdd getting times for specified date
+tdd getting times for specified time (same schedule every day)
+
+create dummy plain text view
+create dummy html view
+
+create location
+
+deploy and test from phone
+
+create command to import from simple file (not scraping)
+    manually enter from latest schedule
+
+
+old
+---
+
 - base library with cli commands
     - print lines
     - create line
