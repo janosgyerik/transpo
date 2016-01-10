@@ -70,6 +70,9 @@ class StationTimesFormTestCase(TestCase):
         form = views.StationTimesForm({})
         self.assertTrue(form.is_valid())
         self.assertTrue('date' not in form.data)
+        self.assertIsNone(form.cleaned_data['date'])
+        self.assertTrue('time' not in form.data)
+        self.assertIsNone(form.cleaned_data['time'])
 
     def test_invalid_malformed_date(self):
         form = views.StationTimesForm({'date': 'malformed'})
@@ -79,7 +82,7 @@ class StationTimesFormTestCase(TestCase):
         form = views.StationTimesForm({'date': ''})
         self.assertTrue(form.is_valid())
         self.assertEquals('', form.data['date'])
-        self.assertEquals(None, form.cleaned_data['date'])
+        self.assertIsNone(form.cleaned_data['date'])
 
     def test_valid_date_as_ymd(self):
         datestr = '2016-01-10'
@@ -101,7 +104,7 @@ class StationTimesFormTestCase(TestCase):
         form = views.StationTimesForm({'time': ''})
         self.assertTrue(form.is_valid())
         self.assertEquals('', form.data['time'])
-        self.assertEquals(None, form.cleaned_data['time'])
+        self.assertIsNone(form.cleaned_data['time'])
 
     def test_valid_time_as_hh_mm(self):
         timestr = '10:21'
