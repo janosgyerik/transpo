@@ -1,3 +1,4 @@
+from django import forms
 from rest_framework import viewsets
 from lines import models
 from api import serializers
@@ -9,11 +10,18 @@ class StationViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.StationSerializer
 
 
+class StationTimesForm(forms.Form):
+    date = forms.DateTimeField(required=False)
+    time = forms.TimeField(required=False)
+
+
 class StationTimesViewSet(viewsets.ModelViewSet):
     queryset = models.DailySchedule.objects.all()
     serializer_class = serializers.DailyScheduleSerializer
 
     def list(self, request, station_id):
+        form = StationTimesForm(request.GET)
+
         times = models.DailySchedule.objects.filter(station_id=station_id)
         page = self.paginate_queryset(times)
         if page is not None:
