@@ -1,4 +1,5 @@
 # Install required python packages using pip:
 # pip install -r requirements.txt
 Django==1.9.1
+django-cors-headers==1.1.0
 djangorestframework==3.3.2
