@@ -1,4 +1,4 @@
-# AngularJS Phone Catalog Tutorial Application
+# Transpo App
 
 ## Overview
 

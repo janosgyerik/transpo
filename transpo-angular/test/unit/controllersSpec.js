@@ -6,7 +6,7 @@ describe('PhoneCat controllers', function() {
   describe('PhoneListCtrl', function(){
     var scope, ctrl, $httpBackend;
 
-    beforeEach(module('phonecatApp'));
+    beforeEach(module('transpoApp'));
     beforeEach(inject(function(_$httpBackend_, $rootScope, $controller) {
       $httpBackend = _$httpBackend_;
       $httpBackend.expectGET('phones/phones.json').

@@ -2,9 +2,9 @@
 
 /* Controllers */
 
-var phonecatApp = angular.module('phonecatApp', []);
+var transpoApp = angular.module('transpoApp', []);
 
-phonecatApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $http) {
+transpoApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $http) {
   $http.get('phones/phones.json').success(function(data) {
     $scope.phones = data;
   });
