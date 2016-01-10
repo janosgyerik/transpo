@@ -3,6 +3,7 @@
 /* Controllers */
 
 var transpoApp = angular.module('transpoApp', []);
+var baseUrl = 'http://127.0.0.1:8000';
 
 transpoApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $http) {
   $http.get('phones/phones.json').success(function(data) {
@@ -13,14 +14,14 @@ transpoApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $htt
 }]);
 
 transpoApp.controller('StationListCtrl', ['$scope', '$http', function($scope, $http) {
-  var url = 'http://127.0.0.1:8000/api/v1/stations/';
+  var url = baseUrl + '/api/v1/stations/';
   $http.get(url).success(function(data) {
     $scope.stations = data;
   });
 }]);
 
 transpoApp.controller('StationTimesListCtrl', ['$scope', '$http', function($scope, $http) {
-  var url = 'http://127.0.0.1:8000/api/v1/stations/1/times/?date=';
+  var url = baseUrl + '/api/v1/stations/1/times/?date=';
   $http.get(url).success(function(data) {
     $scope.stationTimes = data;
   });
