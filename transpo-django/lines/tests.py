@@ -1,5 +1,7 @@
+from datetime import timedelta
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils import timezone
 from django.utils.datetime_safe import time, datetime
 from django.utils.timezone import get_current_timezone
 from lines.models import Line, Station, DailySchedule, Location
@@ -7,19 +9,32 @@ from lines.utils import times_gte
 
 
 class DailyTimesTestCase(TestCase):
+    weekday_date = datetime(2016, 1, 11)
+    weekday_datestr = weekday_date.strftime('%Y-%m-%d')
+
+    weekend_date = datetime(2016, 1, 10)
+    weekend_datestr = weekend_date.strftime('%Y-%m-%d')
+
     line_name = 'R5'
     station_name = 'Jaures'
     weekday_times = [time(17, 6), time(17, 26), time(17, 46),
                      time(18, 6), time(18, 26), time(18, 46)]
     saturday_times = [time(17, 6)]
 
-    def times(self, day):
-        return self.station.daily_times(day)
+    def _times(self, dailytimes):
+        return [s.time for s in dailytimes]
+
+    def next_weekday(self, weekday):
+        d = timezone.now()
+        days_ahead = weekday - d.weekday()
+        if days_ahead <= 0:
+            days_ahead += 7
+        return d + timedelta(days_ahead)
 
     def setUp(self):
         line = Line.objects.create(name=self.line_name)
         self.station = station = Station.objects.create(line=line, name=self.station_name)
-        station.register_daily_times(days=DailySchedule.WEEKDAYS, times=self.weekday_times)
+        station.register_daily_times(days=[DailySchedule.MONDAY, DailySchedule.TUESDAY], times=self.weekday_times)
         station.register_daily_times(days=[DailySchedule.SATURDAY], times=self.saturday_times)
 
         dummy_line = Line.objects.create(name='dummy line')
@@ -28,48 +43,37 @@ class DailyTimesTestCase(TestCase):
         dummy_station.register_daily_times(days=[DailySchedule.SUNDAY], times=self.saturday_times)
 
     def test_times_on_monday(self):
-        self.assertEquals(self.weekday_times, self.times(DailySchedule.MONDAY))
+        self.assertEquals(self.weekday_times, self._times(self.station.daily_times(self.next_weekday(0))))
 
     def test_times_on_tuesday(self):
-        self.assertEquals(self.times(DailySchedule.MONDAY), self.times(DailySchedule.TUESDAY))
+        self.assertEquals(
+            self._times(self.station.daily_times(self.next_weekday(0))),
+            self._times(self.station.daily_times(self.next_weekday(1)))
+        )
 
     def test_times_on_saturday(self):
-        self.assertEquals(self.saturday_times, self.times(DailySchedule.SATURDAY))
+        self.assertEquals(self.saturday_times, self._times(self.station.daily_times(self.next_weekday(5))))
 
     def test_times_on_sunday(self):
-        self.assertEquals([], self.times(DailySchedule.SUNDAY))
+        self.assertEquals(0, len(self.station.daily_times(self.next_weekday(6))))
 
     def test_next_times_when_empty(self):
-        self.assertEquals([], self.station.next_daily_times(DailySchedule.SUNDAY, time(0, 0)))
+        self.assertEquals(0, len(self.station.next_daily_times(self.weekend_date)))
 
     def test_next_times_before_first(self):
-        day = DailySchedule.MONDAY
-        before_first = time(0, 0)
-        count = 3
-        self.assertEquals(self.weekday_times[:count], self.station.next_daily_times(day, before_first, count))
-        count = 4
-        self.assertEquals(self.weekday_times[:count], self.station.next_daily_times(day, before_first, count))
-        self.assertTrue(count < len(self.weekday_times))
+        self.assertEquals(self.weekday_times, self._times(self.station.next_daily_times(self.weekday_date)))
 
     def test_next_times_after_first(self):
-        day = DailySchedule.MONDAY
         after_first = self.weekday_times[1]
+        monday = self.next_weekday(0).replace(hour=after_first.hour, minute=after_first.minute)
         times = self.weekday_times[1:]
-        count = 3
-        self.assertEquals(times[:count], self.station.next_daily_times(day, after_first, count))
-        count = 4
-        self.assertEquals(times[:count], self.station.next_daily_times(day, after_first, count))
-        self.assertTrue(count < len(times))
+        self.assertEquals(times, self._times(self.station.next_daily_times(monday)))
 
     def test_next_times_at_last(self):
-        day = DailySchedule.MONDAY
         at_last = self.weekday_times[-1]
+        monday = self.next_weekday(0).replace(hour=at_last.hour, minute=at_last.minute)
         times = self.weekday_times[-1:]
-        count = 3
-        self.assertEquals(times[:count], self.station.next_daily_times(day, at_last, count))
-        count = 4
-        self.assertEquals(times[:count], self.station.next_daily_times(day, at_last, count))
-        self.assertEquals(1, len(self.station.next_daily_times(day, at_last, count)))
+        self.assertEquals(times, self._times(self.station.next_daily_times(monday)))
 
     def test_time_gte_all_for_min(self):
         times = [time(0, 0), time(5, 5), time(7, 7)]

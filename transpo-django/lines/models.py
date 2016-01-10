@@ -17,8 +17,11 @@ class Station(models.Model):
             for time in times:
                 DailySchedule.objects.create(station=self, day=day, time=time)
 
-    def daily_times(self, day):
-        return [s.time for s in DailySchedule.objects.filter(station=self, day=day)]
+    def daily_times(self, date=None):
+        if date is None:
+            date = timezone.now()
+        date = date.replace(hour=0, minute=0, second=0)
+        return self.next_daily_times(date)
 
     def next_daily_times(self, date=None):
         query = self.dailyschedule_set.all()

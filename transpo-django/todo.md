@@ -20,10 +20,10 @@ create dummy html view
 
 create location
 
-deploy and test from phone
-
 create command to import from simple file (not scraping)
     manually enter from latest schedule
+
+deploy and test from phone
 
 
 old
