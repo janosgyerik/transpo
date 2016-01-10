@@ -13,9 +13,6 @@ create dummy html view
 
 create location
 
-create command to import from simple file (not scraping)
-    manually enter from latest schedule
-
 deploy and test from phone
 
 centralize strftime('%a')
