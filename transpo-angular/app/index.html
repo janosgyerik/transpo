@@ -8,8 +8,24 @@
   <script src="bower_components/angular/angular.js"></script>
   <script src="js/controllers.js"></script>
 </head>
-<body ng-controller="PhoneListCtrl">
+<body>
 
+<div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4" ng-controller="StationListCtrl">
+        <h4>Stations</h4>
+        <ul class="stations">
+          <li ng-repeat="station in stations">
+            <span>{{station.line}} - {{station.name}}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div ng-controller="PhoneListCtrl">
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-2">
@@ -36,6 +52,7 @@
       </div>
     </div>
   </div>
+</div>
 
 </body>
 </html>
