@@ -7,6 +7,9 @@ from lines.utils import times_gte
 class Line(models.Model):
     name = models.CharField(max_length=200)
 
+    def __str__(self):
+        return self.name
+
 
 class Station(models.Model):
     name = models.CharField(max_length=200)
@@ -40,6 +43,9 @@ class Station(models.Model):
     def dates(self):
         return [s.date for s in GeneralSchedule.objects.filter(station=self)]
 
+    def __str__(self):
+        return '{}/{}'.format(self.line, self.name)
+
 
 class DailySchedule(models.Model):
     MONDAY = 'Mon'
@@ -51,6 +57,9 @@ class DailySchedule(models.Model):
     station = models.ForeignKey(Station)
     day = models.CharField(max_length=30)
     time = models.TimeField()
+
+    def __str__(self):
+        return '{}/{}/{}'.format(self.station, self.day, self.time)
 
 
 class GeneralSchedule(models.Model):
