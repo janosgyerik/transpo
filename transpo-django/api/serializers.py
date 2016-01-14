@@ -15,3 +15,8 @@ class StationSerializer(serializers.HyperlinkedModelSerializer):
 class LineSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = models.Line
+
+
+class LocationSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = models.Location

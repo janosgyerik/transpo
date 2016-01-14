@@ -2,17 +2,12 @@ from django.conf.urls import url, include
 from rest_framework import routers
 from api import views
 
-'''
-request = self.factory.get('/api/v1/stations/:id/times?date=')
-request = self.factory.get('/api/v1/users/:id/locations')
-request = self.factory.get('/api/v1/users/:id/locations/:id')
-request = self.factory.get('/api/v1/users/:id/locations/:id/times')
-request = self.factory.get('/api/v1/users/:id/locations/:id/times?date=')
-'''
 router = routers.DefaultRouter()
 router.register(r'lines', views.LineViewSet)
 router.register(r'stations', views.StationViewSet)
 router.register(r'stations/(?P<station_id>[^/.]+)/times', views.StationTimesViewSet, base_name='station-times')
+router.register(r'locations', views.LocationViewSet)
+router.register(r'locations/(?P<location_id>[^/.]+)/times', views.LocationTimesViewSet, base_name='location-times')
 router.register(r'dailyschedule', views.DailyScheduleViewSet)
 
 # Wire up our API using automatic URL routing.

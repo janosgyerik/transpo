@@ -62,3 +62,30 @@ class LineViewSet(viewsets.ModelViewSet):
 class DailyScheduleViewSet(viewsets.ModelViewSet):
     queryset = models.DailySchedule.objects.all()
     serializer_class = serializers.DailyScheduleSerializer
+
+
+class LocationViewSet(viewsets.ModelViewSet):
+    queryset = models.Location.objects.all()
+    serializer_class = serializers.LocationSerializer
+
+
+class LocationTimesViewSet(viewsets.ModelViewSet):
+    queryset = models.DailySchedule.objects.all()
+    serializer_class = serializers.DailyScheduleSerializer
+
+    def list(self, request, location_id):
+        form = StationTimesForm(request.GET)
+        if not form.is_valid():
+            return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        location = get_object_or_404(models.Location, pk=location_id)
+        date = form.parse_date()
+        times = location.next_daily_times(date)
+
+        page = self.paginate_queryset(times)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(times, many=True)
+        return Response(serializer.data)

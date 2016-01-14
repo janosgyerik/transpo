@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from django.contrib.auth.models import User
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -151,6 +152,122 @@ class StationTimesTestCase(TestCase):
         self.assertEquals(self.times[3:], self.to_times(self.to_json(response)))
 
 
+class LocationTimesTestCase(TestCase):
+    line1_times = [time(17, 1), time(17, 11), time(17, 21), time(17, 31)]
+    line2_times = [time(17, 6), time(17, 26), time(17, 46), time(18, 6)]
+
+    service_date = datetime(2016, 1, 11)
+    service_datestr = service_date.strftime( '%Y-%m-%d')
+    service_day = models.DailySchedule.MONDAY
+
+    nonservice_date = datetime(2016, 1, 12)
+    nonservice_datestr = nonservice_date.strftime( '%Y-%m-%d')
+
+    def baseurl(self, location_id=None):
+        if location_id is None:
+            location_id = self.location.id
+        return reverse('location-times-list', kwargs={'location_id': location_id})
+
+    def to_json(self, response):
+        return json.loads(response.content.decode())
+
+    def to_times(self, json_times):
+        def to_time(s):
+            parts = s.split(':')
+            return time(int(parts[0]), int(parts[1]))
+        return [to_time(s['time']) for s in json_times]
+
+    def setUp(self):
+        self.line1 = line1 = models.Line.objects.create(name='R5')
+        self.station1 = station1 = models.Station.objects.create(name='Saint-Germain-en-Laye', line=line1)
+        station1.register_daily_times([self.service_day], self.line1_times)
+
+        self.line2 = line2 = models.Line.objects.create(name='R5')
+        self.station2 = station2 = models.Station.objects.create(name='Saint-Germain-en-Laye', line=line2)
+        station2.register_daily_times([self.service_day], self.line2_times)
+
+        user = User.objects.create()
+        self.location = models.Location.objects.create(user=user, name='Work')
+        self.location.stations.add(self.station1, self.station2)
+
+    def test_nonexistent_location_gives_404(self):
+        url = self.baseurl(123)
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_404_NOT_FOUND, response.status_code)
+        self.assertEquals({'detail': 'Not found.'}, self.to_json(response))
+
+    def test_all_times(self):
+        url = self.baseurl()
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+
+        results = self.to_json(response)
+        self.assertEquals(len(self.line1_times) + len(self.line2_times), len(results))
+
+    def test_invalid_date_param(self):
+        url = self.baseurl() + '?date=malformed'
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+        expected = {
+            'date': ['Enter a valid date/time.']
+        }
+        self.assertEquals(expected, self.to_json(response))
+
+    def test_invalid_time_param(self):
+        url = self.baseurl() + '?time=malformed'
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+        expected = {
+            'time': ['Enter a valid time.']
+        }
+        self.assertEquals(expected, self.to_json(response))
+
+    def test_all_times_on_service_day_by_date(self):
+        url = self.baseurl() + '?date=' + self.service_datestr
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(self.line1_times + self.line2_times, self.to_times(self.to_json(response)))
+
+    def test_no_times_on_nonservice_day_by_date(self):
+        url = self.baseurl() + '?date=' + self.nonservice_datestr
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals([], self.to_json(response))
+
+    def test_all_times_on_service_day_by_time(self):
+        everyday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        self.station1.register_daily_times(everyday, self.line2_times)
+        url = self.baseurl() + '?time=00:00'
+
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(self.line2_times, self.to_times(self.to_json(response)))
+
+    def test_no_times_on_nonservice_day_by_time(self):
+        self.station1.dailyschedule_set.all().delete()
+        url = self.baseurl() + '?time=00:00'
+
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals([], self.to_times(self.to_json(response)))
+
+    def test_times_after_6pm_by_date(self):
+        url = self.baseurl() + '?date=' + self.service_datestr + ' 18:00'
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(self.line2_times[3:], self.to_times(self.to_json(response)))
+
+    def test_times_after_6pm_by_time(self):
+        everyday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        self.station1.register_daily_times(everyday, self.line2_times)
+        url = self.baseurl() + '?time=18:00'
+        response = self.client.get(url)
+        self.assertEquals(status.HTTP_200_OK, response.status_code)
+        self.assertEquals(self.line2_times[3:], self.to_times(self.to_json(response)))
+
+
 class LineTestCase(APITestCase):
     def test_no_lines(self):
         url = reverse('line-list')
@@ -256,10 +373,3 @@ class StationTimesFormTestCase(TestCase):
         date = date.replace(hour=t.hour, minute=t.minute)
         self.assertTrue(form.is_valid())
         self.assertLessEqual(abs(form.parse_date() - date), timedelta(minutes=1))
-
-# TODO
-# request = self.factory.get('/api/v1/stations/:id/times?date=')
-# request = self.factory.get('/api/v1/users/:id/locations')
-# request = self.factory.get('/api/v1/users/:id/locations/:id')
-# request = self.factory.get('/api/v1/users/:id/locations/:id/times')
-# request = self.factory.get('/api/v1/users/:id/locations/:id/times?date=')

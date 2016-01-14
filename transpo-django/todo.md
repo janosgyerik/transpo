@@ -11,8 +11,6 @@ when searching for daily times:
 create dummy plain text view
 create dummy html view
 
-create location
-
 deploy and test from phone
 
 centralize strftime('%a')
