@@ -43,6 +43,17 @@ class StationTestCase(APITestCase):
         self.assertEquals(expected, results)
 
 
+def to_json(response):
+    return json.loads(response.content.decode())
+
+
+def to_times(json_times):
+    def to_time(s):
+        parts = s.split(':')
+        return time(int(parts[0]), int(parts[1]))
+    return [to_time(s['time']) for s in json_times]
+
+
 class StationTimesTestCase(TestCase):
     times = [time(17, 6), time(17, 26), time(17, 46), time(18, 6), time(18, 26)]
 
@@ -60,15 +71,6 @@ class StationTimesTestCase(TestCase):
             station_id = self.station.id
         return reverse('station-times-list', kwargs={'station_id': station_id})
 
-    def to_json(self, response):
-        return json.loads(response.content.decode())
-
-    def to_times(self, json_times):
-        def to_time(s):
-            parts = s.split(':')
-            return time(int(parts[0]), int(parts[1]))
-        return [to_time(s['time']) for s in json_times]
-
     def setUp(self):
         self.line = line = models.Line.objects.create(name='R5')
         self.station = station = models.Station.objects.create(name='Saint-Germain-en-Laye', line=line)
@@ -78,14 +80,14 @@ class StationTimesTestCase(TestCase):
         url = self.baseurl(self.station.id + 1)
         response = self.client.get(url)
         self.assertEquals(status.HTTP_404_NOT_FOUND, response.status_code)
-        self.assertEquals({'detail': 'Not found.'}, self.to_json(response))
+        self.assertEquals({'detail': 'Not found.'}, to_json(response))
 
     def test_all_times(self):
         url = self.baseurl()
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
 
-        results = self.to_json(response)
+        results = to_json(response)
         self.assertEquals(len(self.times), len(results))
 
     def test_invalid_date_param(self):
@@ -96,7 +98,7 @@ class StationTimesTestCase(TestCase):
         expected = {
             'date': ['Enter a valid date/time.']
         }
-        self.assertEquals(expected, self.to_json(response))
+        self.assertEquals(expected, to_json(response))
 
     def test_invalid_time_param(self):
         url = self.baseurl() + '?time=malformed'
@@ -106,19 +108,19 @@ class StationTimesTestCase(TestCase):
         expected = {
             'time': ['Enter a valid time.']
         }
-        self.assertEquals(expected, self.to_json(response))
+        self.assertEquals(expected, to_json(response))
 
     def test_all_times_on_service_day_by_date(self):
         url = self.baseurl() + '?date=' + self.service_datestr
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.times, self.to_times(self.to_json(response)))
+        self.assertEquals(self.times, to_times(to_json(response)))
 
     def test_no_times_on_nonservice_day_by_date(self):
         url = self.baseurl() + '?date=' + self.nonservice_datestr
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals([], self.to_json(response))
+        self.assertEquals([], to_json(response))
 
     def test_all_times_on_service_day_by_time(self):
         everyday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -127,7 +129,7 @@ class StationTimesTestCase(TestCase):
 
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.times, self.to_times(self.to_json(response)))
+        self.assertEquals(self.times, to_times(to_json(response)))
 
     def test_no_times_on_nonservice_day_by_time(self):
         self.station.dailyschedule_set.all().delete()
@@ -135,13 +137,13 @@ class StationTimesTestCase(TestCase):
 
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals([], self.to_times(self.to_json(response)))
+        self.assertEquals([], to_times(to_json(response)))
 
     def test_times_after_6pm_by_date(self):
         url = self.baseurl() + '?date=' + self.service_datestr + ' 18:00'
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.times[3:], self.to_times(self.to_json(response)))
+        self.assertEquals(self.times[3:], to_times(to_json(response)))
 
     def test_times_after_6pm_by_time(self):
         everyday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -149,7 +151,7 @@ class StationTimesTestCase(TestCase):
         url = self.baseurl() + '?time=18:00'
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.times[3:], self.to_times(self.to_json(response)))
+        self.assertEquals(self.times[3:], to_times(to_json(response)))
 
 
 class LocationTimesTestCase(TestCase):
@@ -168,15 +170,6 @@ class LocationTimesTestCase(TestCase):
             location_id = self.location.id
         return reverse('location-times-list', kwargs={'location_id': location_id})
 
-    def to_json(self, response):
-        return json.loads(response.content.decode())
-
-    def to_times(self, json_times):
-        def to_time(s):
-            parts = s.split(':')
-            return time(int(parts[0]), int(parts[1]))
-        return [to_time(s['time']) for s in json_times]
-
     def setUp(self):
         self.line1 = line1 = models.Line.objects.create(name='R5')
         self.station1 = station1 = models.Station.objects.create(name='Saint-Germain-en-Laye', line=line1)
@@ -194,14 +187,14 @@ class LocationTimesTestCase(TestCase):
         url = self.baseurl(123)
         response = self.client.get(url)
         self.assertEquals(status.HTTP_404_NOT_FOUND, response.status_code)
-        self.assertEquals({'detail': 'Not found.'}, self.to_json(response))
+        self.assertEquals({'detail': 'Not found.'}, to_json(response))
 
     def test_all_times(self):
         url = self.baseurl()
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
 
-        results = self.to_json(response)
+        results = to_json(response)
         self.assertEquals(len(self.line1_times) + len(self.line2_times), len(results))
 
     def test_invalid_date_param(self):
@@ -212,7 +205,7 @@ class LocationTimesTestCase(TestCase):
         expected = {
             'date': ['Enter a valid date/time.']
         }
-        self.assertEquals(expected, self.to_json(response))
+        self.assertEquals(expected, to_json(response))
 
     def test_invalid_time_param(self):
         url = self.baseurl() + '?time=malformed'
@@ -222,20 +215,20 @@ class LocationTimesTestCase(TestCase):
         expected = {
             'time': ['Enter a valid time.']
         }
-        self.assertEquals(expected, self.to_json(response))
+        self.assertEquals(expected, to_json(response))
 
     def test_all_times_on_service_day_by_date(self):
         url = self.baseurl() + '?date=' + self.service_datestr
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
         sorted_times = sorted(self.line1_times + self.line2_times)
-        self.assertEquals(sorted_times, self.to_times(self.to_json(response)))
+        self.assertEquals(sorted_times, to_times(to_json(response)))
 
     def test_no_times_on_nonservice_day_by_date(self):
         url = self.baseurl() + '?date=' + self.nonservice_datestr
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals([], self.to_json(response))
+        self.assertEquals([], to_json(response))
 
     def test_all_times_on_service_day_by_time(self):
         everyday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -244,7 +237,7 @@ class LocationTimesTestCase(TestCase):
 
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.line2_times, self.to_times(self.to_json(response)))
+        self.assertEquals(self.line2_times, to_times(to_json(response)))
 
     def test_no_times_on_nonservice_day_by_time(self):
         self.station1.dailyschedule_set.all().delete()
@@ -252,13 +245,13 @@ class LocationTimesTestCase(TestCase):
 
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals([], self.to_times(self.to_json(response)))
+        self.assertEquals([], to_times(to_json(response)))
 
     def test_times_after_6pm_by_date(self):
         url = self.baseurl() + '?date=' + self.service_datestr + ' 18:00'
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.line2_times[3:], self.to_times(self.to_json(response)))
+        self.assertEquals(self.line2_times[3:], to_times(to_json(response)))
 
     def test_times_after_6pm_by_time(self):
         everyday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -266,7 +259,7 @@ class LocationTimesTestCase(TestCase):
         url = self.baseurl() + '?time=18:00'
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.line2_times[3:], self.to_times(self.to_json(response)))
+        self.assertEquals(self.line2_times[3:], to_times(to_json(response)))
 
 
 class LineTestCase(APITestCase):
