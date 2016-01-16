@@ -228,7 +228,8 @@ class LocationTimesTestCase(TestCase):
         url = self.baseurl() + '?date=' + self.service_datestr
         response = self.client.get(url)
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(self.line1_times + self.line2_times, self.to_times(self.to_json(response)))
+        sorted_times = sorted(self.line1_times + self.line2_times)
+        self.assertEquals(sorted_times, self.to_times(self.to_json(response)))
 
     def test_no_times_on_nonservice_day_by_date(self):
         url = self.baseurl() + '?date=' + self.nonservice_datestr
