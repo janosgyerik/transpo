@@ -11,6 +11,10 @@ class Command(BaseCommand):
                             help='List of days, for example: Sat Sun weekdays')
         parser.add_argument('--times', '-t', nargs='+',
                             help='List of times, for example: 07:10 08:10')
+        parser.add_argument('--create', action='store_true',
+                            help='Create specified days and times')
+        parser.add_argument('--delete', action='store_true',
+                            help='Delete specified days and times')
 
     def handle(self, *args, **options):
         station_id = options['station-id']
@@ -19,7 +23,23 @@ class Command(BaseCommand):
         except models.Station.DoesNotExist:
             raise CommandError('Station "{}" does not exist'.format(station_id))
 
+        if options['create']:
+            self.create_times(station, options)
+        elif options['delete']:
+            self.delete_times(station, options)
+
+    def create_times(self, station, options):
         if not options['days'] or not options['times']:
             raise CommandError('You must specify both days and times to register')
-
         station.register_daily_times(options['days'], options['times'])
+
+    def delete_times(self, station, options):
+        times = station.dailyschedule_set.all()
+        if options['days']:
+            times = times.filter(day__in=options['days'])
+        if options['times']:
+            times = times.filter(time__in=options['times'])
+
+        for t in times:
+            self.stdout.write('deleting time: {}'.format(t))
+            t.delete()
