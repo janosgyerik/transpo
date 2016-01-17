@@ -8,6 +8,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--create', metavar='line:name',
                             help='Create station on specified line')
+        parser.add_argument('--times', '-t', action='store_true',
+                            help='Show times of stations')
 
     def handle(self, *args, **options):
         line_name_option = options['create']
@@ -26,8 +28,14 @@ class Command(BaseCommand):
             self.print_station(station)
 
         else:
-            for station in models.Station.objects.all():
-                self.print_station(station)
+            show_times = options['times']
 
-    def print_station(self, station):
+            for station in models.Station.objects.all():
+                self.print_station(station, show_times)
+
+    def print_station(self, station, show_times=False):
         self.stdout.write('{}: {}'.format(station.id, station))
+        if show_times:
+            for schedule in station.dailyschedule_set.all():
+                self.stdout.write('  {}'.format(schedule.day_and_time))
+            self.stdout.write('')
