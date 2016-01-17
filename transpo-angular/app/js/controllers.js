@@ -26,3 +26,10 @@ transpoApp.controller('StationTimesListCtrl', ['$scope', '$http', function($scop
     $scope.stationTimes = data;
   });
 }]);
+
+transpoApp.controller('LocationTimesListCtrl', ['$scope', '$http', function($scope, $http) {
+  var url = baseUrl + '/api/v1/locations/3/times/?date=2016-01-17&time=10:00';
+  $http.get(url).success(function(data) {
+    $scope.locationTimes = data;
+  });
+}]);

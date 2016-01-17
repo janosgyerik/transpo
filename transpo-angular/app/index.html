@@ -22,10 +22,18 @@
         </ul>
       </div>
       <div class="col-md-4" ng-controller="StationTimesListCtrl">
-        <h4>Times</h4>
+        <h4>Station times</h4>
         <ul class="stationTimes">
           <li ng-repeat="st in stationTimes">
             <span>{{st.station}} - {{st.time}} - {{st.day}}</span>
+          </li>
+        </ul>
+      </div>
+      <div class="col-md-4" ng-controller="LocationTimesListCtrl">
+        <h4>Location times</h4>
+        <ul class="locationTimes">
+          <li ng-repeat="loc in locationTimes">
+            <span>{{loc.station}} - {{loc.time}} - {{loc.day}}</span>
           </li>
         </ul>
       </div>
