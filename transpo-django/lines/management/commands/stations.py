@@ -30,4 +30,4 @@ class Command(BaseCommand):
                 self.print_station(station)
 
     def print_station(self, station):
-        self.stdout.write('{}'.format(station))
+        self.stdout.write('{}: {}'.format(station.id, station))
