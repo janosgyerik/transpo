@@ -81,3 +81,6 @@ class Location(models.Model):
             result += list(station.next_daily_times(date))
 
         return sorted(result, key=lambda x: x.time)
+
+    def __str__(self):
+        return '{} ({})'.format(self.name, ', '.join([str(x) for x in self.stations.all()]))
