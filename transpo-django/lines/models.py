@@ -60,6 +60,10 @@ class DailySchedule(models.Model):
     def __str__(self):
         return '{}/{}/{}'.format(self.station, self.day, self.time)
 
+    @property
+    def day_and_time(self):
+        return '({}) {:%H:%M}'.format(self.day, self.time)
+
 
 class GeneralSchedule(models.Model):
     station = models.ForeignKey(Station)
