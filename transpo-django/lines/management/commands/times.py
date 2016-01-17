@@ -15,6 +15,8 @@ class Command(BaseCommand):
                             help='Create specified days and times')
         parser.add_argument('--delete', action='store_true',
                             help='Delete specified days and times')
+        parser.add_argument('--list', '-l', action='store_true',
+                            help='List matching days and times')
 
     def handle(self, *args, **options):
         station_id = options['station-id']
@@ -27,13 +29,15 @@ class Command(BaseCommand):
             self.create_times(station, options)
         elif options['delete']:
             self.delete_times(station, options)
+        else:
+            self.list_times(station, options)
 
     def create_times(self, station, options):
         if not options['days'] or not options['times']:
             raise CommandError('You must specify both days and times to register')
         station.register_daily_times(options['days'], options['times'])
 
-    def delete_times(self, station, options):
+    def for_each_time(self, station, options, fun):
         times = station.dailyschedule_set.all()
         if options['days']:
             times = times.filter(day__in=options['days'])
@@ -41,5 +45,17 @@ class Command(BaseCommand):
             times = times.filter(time__in=options['times'])
 
         for t in times:
+            fun(t)
+
+    def delete_times(self, station, options):
+        def fun(t):
             self.stdout.write('deleting time: {}'.format(t))
             t.delete()
+
+        self.for_each_time(station, options, fun)
+
+    def list_times(self, station, options):
+        def fun(t):
+            self.stdout.write('{}'.format(t))
+
+        self.for_each_time(station, options, fun)
