@@ -20,8 +20,8 @@ class Command(BaseCommand):
     def create_station(self, line_name_option):
         try:
             line_name, station_name = line_name_option.split(':')
-        except ValueError as e:
-            raise CommandError('could not parse line:name format: {}\n  {}'.format(line_name_option, e))
+        except ValueError:
+            raise CommandError('specify the station to create in line:name format.\n  Example: M6:Manhattan')
 
         try:
             line = models.Line.objects.get(name=line_name)
