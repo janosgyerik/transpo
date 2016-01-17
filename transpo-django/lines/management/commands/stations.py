@@ -6,6 +6,7 @@ class Command(BaseCommand):
     help = 'Manage stations'
 
     def add_arguments(self, parser):
+        parser.add_argument('station-ids', nargs='*', type=int)
         parser.add_argument('--create', '-c', metavar='line:name',
                             help='Create station on specified transportation line')
         parser.add_argument('--times', '-t', action='store_true',
@@ -33,7 +34,12 @@ class Command(BaseCommand):
 
     def list_stations(self, options):
         show_times = options['times']
-        for station in models.Station.objects.all():
+
+        stations = models.Station.objects.all()
+        if options['station-ids']:
+            stations = stations.filter(id__in=options['station-ids'])
+
+        for station in stations:
             self.print_station(station, show_times)
 
     def print_station(self, station, show_times=False):
