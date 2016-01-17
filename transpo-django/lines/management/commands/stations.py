@@ -7,6 +7,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('station-ids', nargs='*', type=int)
+        parser.add_argument('--list', '-l', action='store_true',
+                            help='Show list of stations')
         parser.add_argument('--create', '-c', metavar='line:name',
                             help='Create station on specified transportation line')
         parser.add_argument('--times', '-t', action='store_true',
