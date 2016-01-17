@@ -26,7 +26,7 @@ class Command(BaseCommand):
         try:
             line = models.Line.objects.get(name=line_name)
         except models.Line.DoesNotExist:
-            raise CommandError('No Line with this name: {}'.format(line_name))
+            raise CommandError('no line with this name: {}'.format(line_name))
 
         station = models.Station.objects.create(name=station_name, line=line)
         self.print_station(station)
