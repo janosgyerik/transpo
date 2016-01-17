@@ -7,8 +7,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('station-id')
-        parser.add_argument('--days', '-d', nargs='+')
-        parser.add_argument('--times', '-t', nargs='+')
+        parser.add_argument('--days', '-d', nargs='+',
+                            help='List of days, for example: Sat Sun weekdays')
+        parser.add_argument('--times', '-t', nargs='+',
+                            help='List of times, for example: 07:10 08:10')
 
     def handle(self, *args, **options):
         station_id = options['station-id']
