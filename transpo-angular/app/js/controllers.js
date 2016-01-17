@@ -1,8 +1,23 @@
 'use strict';
 
+/* Services */
+
+var BASE_URL = 'http://127.0.0.1:8000';
+var URL_STATIONS = BASE_URL + '/api/v1/stations/';
+
+angular
+    .module('StationService', [])
+    .factory('stations', ['$http', function ($http) {
+      return {
+        list: function () {
+          return $http.get(URL_STATIONS);
+        }
+      };
+    }]);
+
 /* Controllers */
 
-var transpoApp = angular.module('transpoApp', []);
+var transpoApp = angular.module('transpoApp', ['StationService']);
 var baseUrl = 'http://127.0.0.1:8000';
 
 transpoApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $http) {
@@ -13,10 +28,9 @@ transpoApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $htt
   $scope.orderProp = 'age';
 }]);
 
-transpoApp.controller('StationListCtrl', ['$scope', '$http', function($scope, $http) {
-  var url = baseUrl + '/api/v1/stations/';
-  $http.get(url).success(function(data) {
-    $scope.stations = data;
+transpoApp.controller('StationListCtrl', ['$scope', 'stations', function($scope, stations) {
+  stations.list().then(function(response) {
+    $scope.stations = response.data;
   });
 }]);
 
