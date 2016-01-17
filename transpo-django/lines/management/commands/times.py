@@ -7,8 +7,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('station-id')
-        parser.add_argument('--days', nargs='+')
-        parser.add_argument('--times', nargs='+')
+        parser.add_argument('--days', '-d', nargs='+')
+        parser.add_argument('--times', '-t', nargs='+')
 
     def handle(self, *args, **options):
         station_id = options['station-id']
