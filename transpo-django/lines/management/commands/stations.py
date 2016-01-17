@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = 'Manage stations'
 
     def add_arguments(self, parser):
-        parser.add_argument('--create', metavar='line:name',
+        parser.add_argument('--create', '-c', metavar='line:name',
                             help='Create station on specified line')
         parser.add_argument('--times', '-t', action='store_true',
                             help='Show times of stations')
