@@ -17,7 +17,7 @@
         <h4>Location times</h4>
         <ul class="locationTimes">
           <li ng-repeat="loc in locationTimes">
-            <span>{{loc.station}} - {{loc.time}} - {{loc.day}}</span>
+            <span>{{loc.time | limitTo: 5}} {{linesMap[stationsMap[loc.station].line].name}}</span>
           </li>
         </ul>
       </div>
@@ -33,7 +33,7 @@
         <h4>Station times</h4>
         <ul class="stationTimes">
           <li ng-repeat="st in stationTimes">
-            <span>{{st.station}} - {{st.time}} - {{st.day}}</span>
+            <span>{{st.day}} {{st.time}} {{st.station}}</span>
           </li>
         </ul>
       </div>

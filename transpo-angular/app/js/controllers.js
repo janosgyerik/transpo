@@ -3,8 +3,8 @@
 /* Services */
 
 var BASE_URL = 'http://127.0.0.1:8000';
-var URL_STATIONS = BASE_URL + '/api/v1/stations/';
 var URL_LINES = BASE_URL + '/api/v1/lines/';
+var URL_STATIONS = BASE_URL + '/api/v1/stations/';
 
 angular
   .module('StationService', [])
@@ -56,8 +56,8 @@ transpoApp.controller('StationListCtrl', ['$scope', 'stations', 'lines', functio
     $scope.lines = response.data;
     return stations.list();
   }).then(function(response) {
-    $scope.linesMap = toMap($scope.lines);
     $scope.stations = response.data;
+    $scope.linesMap = toMap($scope.lines);
   });
 }]);
 
@@ -68,9 +68,18 @@ transpoApp.controller('StationTimesListCtrl', ['$scope', '$http', function($scop
   });
 }]);
 
-transpoApp.controller('LocationTimesListCtrl', ['$scope', '$http', function($scope, $http) {
+transpoApp.controller('LocationTimesListCtrl', ['$scope', '$http', 'stations', 'lines', function($scope, $http, stations, lines) {
   var url = baseUrl + '/api/v1/locations/3/times/?date=2016-01-17&time=10:00';
   $http.get(url).success(function(data) {
     $scope.locationTimes = data;
+
+    lines.list().then(function(response) {
+      $scope.lines = response.data;
+      return stations.list();
+    }).then(function(response) {
+      $scope.stations = response.data;
+      $scope.linesMap = toMap($scope.lines);
+      $scope.stationsMap = toMap($scope.stations);
+    });
   });
 }]);
