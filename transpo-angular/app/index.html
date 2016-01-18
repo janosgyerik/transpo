@@ -29,7 +29,7 @@
       <md-tab label="Locations">
         <md-content class="md-padding" ng-controller="LocationTimesListCtrl">
           <md-list>
-            <md-subheader class="md-no-sticky">Times</md-subheader>
+            <!--<md-subheader class="md-no-sticky">Times</md-subheader>-->
             <md-list-item ng-repeat="loc in locationTimes">
               <span>{{loc.time | limitTo: 5}} {{linesMap[stationsMap[loc.station].line].name}}</span>
             </md-list-item>
@@ -39,7 +39,6 @@
       <md-tab label="Stations">
         <md-content class="md-padding" ng-controller="StationListCtrl">
           <md-list>
-            <md-subheader class="md-no-sticky">Stations</md-subheader>
             <md-list-item ng-repeat="station in stations">
               <span>{{linesMap[station.line].name}}/{{station.name}}</span>
             </md-list-item>
