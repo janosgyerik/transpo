@@ -28,16 +28,12 @@ angular
 
 /* Controllers */
 
-var transpoApp = angular.module('transpoApp', ['StationService', 'LineService']);
+var transpoApp = angular.module('transpoApp', ['ngMaterial', 'StationService', 'LineService']);
 var baseUrl = 'http://127.0.0.1:8000';
 
-transpoApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $http) {
-  $http.get('phones/phones.json').success(function(data) {
-    $scope.phones = data;
-  });
-
-  $scope.orderProp = 'age';
-}]);
+transpoApp.controller('DateCtrl', function($scope) {
+  $scope.scheduleDate = new Date();
+});
 
 function mapByAttr(arr, attr) {
   function mapper(acc, value) {

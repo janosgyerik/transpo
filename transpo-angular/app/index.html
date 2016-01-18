@@ -1,74 +1,60 @@
 <!doctype html>
-<html lang="en" ng-app="transpoApp">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
   <title>Transpo</title>
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
-  <link rel="stylesheet" href="css/app.css">
-  <script src="bower_components/angular/angular.js"></script>
-  <script src="js/controllers.js"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+  <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
+  <!--<link rel="stylesheet" href="css/app.css">-->
 </head>
-<body>
 
-<div>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-4" ng-controller="LocationTimesListCtrl">
-        <h4>Location times</h4>
-        <ul class="locationTimes">
-          <li ng-repeat="loc in locationTimes">
-            <span>{{loc.time | limitTo: 5}} {{linesMap[stationsMap[loc.station].line].name}}</span>
-          </li>
-        </ul>
-      </div>
-      <div class="col-md-4" ng-controller="StationListCtrl">
-        <h4>Stations</h4>
-        <ul class="stations">
-          <li ng-repeat="station in stations">
-            <span>{{linesMap[station.line].name}}/{{station.name}}</span>
-          </li>
-        </ul>
-      </div>
-      <div class="col-md-4" ng-controller="StationTimesListCtrl">
-        <h4>Station times</h4>
-        <ul class="stationTimes">
-          <li ng-repeat="st in stationTimes">
-            <span>{{st.day}} {{st.time}} {{st.station}}</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
+<body ng-app="transpoApp" layout="column">
+
+<md-toolbar layout="row">
+  <h1>Transpo App</h1>
+</md-toolbar>
+
+<div ng-controller="DateCtrl" style="padding: 10px;" ng-cloak>
+  <md-content>
+    <md-datepicker ng-model="scheduleDate" md-placeholder="Enter date"></md-datepicker>
+  </md-content>
 </div>
 
-<div ng-controller="PhoneListCtrl">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-md-2">
-        <!--Sidebar content-->
-
-        Search: <input ng-model="query">
-        Sort by:
-        <select ng-model="orderProp">
-          <option value="name">Alphabetical</option>
-          <option value="age">Newest</option>
-        </select>
-
-      </div>
-      <div class="col-md-10">
-        <!--Body content-->
-
-        <ul class="phones">
-          <li ng-repeat="phone in phones | filter:query | orderBy:orderProp">
-            <span>{{phone.name}}</span>
-            <p>{{phone.snippet}}</p>
-          </li>
-        </ul>
-
-      </div>
-    </div>
-  </div>
+<div ng-cloak>
+  <md-content>
+    <md-tabs md-dynamic-height md-border-bottom>
+      <md-tab label="Locations">
+        <md-content class="md-padding" ng-controller="LocationTimesListCtrl">
+          <md-list>
+            <md-subheader class="md-no-sticky">Times</md-subheader>
+            <md-list-item ng-repeat="loc in locationTimes">
+              <span>{{loc.time | limitTo: 5}} {{linesMap[stationsMap[loc.station].line].name}}</span>
+            </md-list-item>
+          </md-list>
+        </md-content>
+      </md-tab>
+      <md-tab label="Stations">
+        <md-content class="md-padding" ng-controller="StationListCtrl">
+          <md-list>
+            <md-subheader class="md-no-sticky">Stations</md-subheader>
+            <md-list-item ng-repeat="station in stations">
+              <span>{{linesMap[station.line].name}}/{{station.name}}</span>
+            </md-list-item>
+          </md-list>
+        </md-content>
+      </md-tab>
+    </md-tabs>
+  </md-content>
 </div>
+
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-aria/angular-aria.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angular-material/angular-material.js"></script>
+<script src="js/controllers.js"></script>
 
 </body>
 </html>
