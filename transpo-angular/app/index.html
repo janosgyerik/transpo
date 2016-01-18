@@ -30,7 +30,7 @@
         <md-content class="md-padding" ng-controller="LocationTimesListCtrl">
           <md-list>
             <!--<md-subheader class="md-no-sticky">Times</md-subheader>-->
-            <md-list-item ng-repeat="loc in locationTimes">
+            <md-list-item ng-repeat="loc in locationTimes | limitTo: 8">
               <span>{{loc.time | limitTo: 5}} {{linesMap[stationsMap[loc.station].line].name}}</span>
             </md-list-item>
           </md-list>
