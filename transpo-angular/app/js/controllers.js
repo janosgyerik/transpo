@@ -4,6 +4,7 @@
 
 var BASE_URL = 'http://127.0.0.1:8000';
 var URL_STATIONS = BASE_URL + '/api/v1/stations/';
+var URL_LINES = BASE_URL + '/api/v1/lines/';
 
 angular
   .module('StationService', [])
@@ -15,9 +16,19 @@ angular
     };
   }]);
 
+angular
+  .module('LineService', [])
+  .factory('lines', ['$http', function ($http) {
+    return {
+      list: function () {
+        return $http.get(URL_LINES);
+      }
+    };
+  }]);
+
 /* Controllers */
 
-var transpoApp = angular.module('transpoApp', ['StationService']);
+var transpoApp = angular.module('transpoApp', ['StationService', 'LineService']);
 var baseUrl = 'http://127.0.0.1:8000';
 
 transpoApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $http) {
@@ -28,8 +39,24 @@ transpoApp.controller('PhoneListCtrl', ['$scope', '$http', function($scope, $htt
   $scope.orderProp = 'age';
 }]);
 
-transpoApp.controller('StationListCtrl', ['$scope', 'stations', function($scope, stations) {
-  stations.list().then(function(response) {
+function mapByAttr(arr, attr) {
+  function mapper(acc, value) {
+    acc[value[attr]] = value;
+    return acc;
+  }
+  return arr.reduce(mapper, {});
+}
+
+function toMap(data) {
+  return mapByAttr(data, 'url');
+}
+
+transpoApp.controller('StationListCtrl', ['$scope', 'stations', 'lines', function($scope, stations, lines) {
+  lines.list().then(function(response) {
+    $scope.lines = response.data;
+    return stations.list();
+  }).then(function(response) {
+    $scope.linesMap = toMap($scope.lines);
     $scope.stations = response.data;
   });
 }]);
