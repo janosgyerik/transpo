@@ -6,14 +6,14 @@ var BASE_URL = 'http://127.0.0.1:8000';
 var URL_STATIONS = BASE_URL + '/api/v1/stations/';
 
 angular
-    .module('StationService', [])
-    .factory('stations', ['$http', function ($http) {
-      return {
-        list: function () {
-          return $http.get(URL_STATIONS);
-        }
-      };
-    }]);
+  .module('StationService', [])
+  .factory('stations', ['$http', function ($http) {
+    return {
+      list: function () {
+        return $http.get(URL_STATIONS);
+      }
+    };
+  }]);
 
 /* Controllers */
 
