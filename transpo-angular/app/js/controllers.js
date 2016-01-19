@@ -31,8 +31,24 @@ angular
 var transpoApp = angular.module('transpoApp', ['ngMaterial', 'StationService', 'LineService']);
 var baseUrl = 'http://127.0.0.1:8000';
 
+function twoDigits(x) {
+  return x < 10 ? '0' + x : x;
+}
+
+function toDateString(date) {
+  return (1900 + date.getYear()) + '-' + twoDigits(date.getMonth() + 1) + '-' + twoDigits(date.getDate());
+}
+
+function toTimeString(date) {
+  return twoDigits(date.getHours()) + ':' + twoDigits(date.getMinutes());
+}
+
+function toDateTimeString(date) {
+  return toDateString(date) + ' ' + toTimeString(date);
+}
+
 transpoApp.controller('DateCtrl', function($scope) {
-  $scope.scheduleDate = new Date();
+  $scope.scheduleDate = toDateTimeString(new Date());
 });
 
 function mapByAttr(arr, attr) {
