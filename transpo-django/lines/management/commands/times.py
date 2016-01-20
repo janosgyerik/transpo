@@ -32,12 +32,14 @@ class Command(BaseCommand):
         else:
             self.list_times(station, options)
 
-    def create_times(self, station, options):
+    @staticmethod
+    def create_times(station, options):
         if not options['days'] or not options['times']:
             raise CommandError('You must specify both days and times to register')
         station.register_daily_times(options['days'], options['times'])
 
-    def for_each_time(self, station, options, fun):
+    @staticmethod
+    def for_each_time(station, options, fun):
         times = station.dailyschedule_set.all()
         if options['days']:
             times = times.filter(day__in=options['days'])
