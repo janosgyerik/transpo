@@ -59,11 +59,11 @@ class StationTimesTestCase(TestCase):
 
     service_date = datetime(2016, 1, 11)
     service_date_6pm = datetime(2016, 1, 11, 18)
-    service_datestr = service_date.strftime( '%Y-%m-%d')
+    service_datestr = service_date.strftime('%Y-%m-%d')
     service_day = models.DailySchedule.MONDAY
 
     nonservice_date = datetime(2016, 1, 10)
-    nonservice_datestr = nonservice_date.strftime( '%Y-%m-%d')
+    nonservice_datestr = nonservice_date.strftime('%Y-%m-%d')
     nonservice_day = models.DailySchedule.SUNDAY
 
     def baseurl(self, station_id=None):
@@ -159,11 +159,11 @@ class LocationTimesTestCase(TestCase):
     line2_times = [time(17, 6), time(17, 26), time(17, 46), time(18, 6)]
 
     service_date = datetime(2016, 1, 11)
-    service_datestr = service_date.strftime( '%Y-%m-%d')
+    service_datestr = service_date.strftime('%Y-%m-%d')
     service_day = models.DailySchedule.MONDAY
 
     nonservice_date = datetime(2016, 1, 12)
-    nonservice_datestr = nonservice_date.strftime( '%Y-%m-%d')
+    nonservice_datestr = nonservice_date.strftime('%Y-%m-%d')
 
     def baseurl(self, location_id=None):
         if location_id is None:
