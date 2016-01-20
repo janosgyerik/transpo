@@ -8,6 +8,10 @@ from lines.models import Line, Station, DailySchedule, Location
 from lines.utils import times_gte
 
 
+def dayname(date):
+    return date.strftime('%a')
+
+
 class DailyTimesTestCase(TestCase):
     weekday_date = datetime(2016, 1, 11)
     weekday_datestr = weekday_date.strftime('%Y-%m-%d')
@@ -131,10 +135,10 @@ class LocationTestCase(TestCase):
 
     def test_combined_times_all_from_line1(self):
         date = timezone.now().date()
-        day = date.strftime('%a')
+        day = dayname(date)
 
         other_date = date + timedelta(days=1)
-        other_day = other_date.strftime('%a')
+        other_day = dayname(other_date)
 
         self.station1.register_daily_times([day], [time(17, 1), time(17, 11), time(17, 21), time(17, 31)])
         self.station2.register_daily_times([other_day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])
@@ -151,7 +155,7 @@ class LocationTestCase(TestCase):
 
     def test_combined_times_all_from_line2(self):
         date = timezone.now().replace(hour=17, minute=1)
-        day = date.strftime('%a')
+        day = dayname(date)
 
         self.station1.register_daily_times([day], [time(11, 1), time(11, 11), time(11, 21), time(11, 31)])
         self.station2.register_daily_times([day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])
@@ -168,7 +172,7 @@ class LocationTestCase(TestCase):
 
     def test_combined_times_mix_from_both_line1_first(self):
         date = timezone.now().replace(hour=17, minute=20)
-        day = date.strftime('%a')
+        day = dayname(date)
 
         self.station1.register_daily_times([day], [time(17, 1), time(17, 11), time(17, 21), time(17, 31)])
         self.station2.register_daily_times([day], [time(17, 6), time(17, 26), time(17, 46), time(18, 6)])

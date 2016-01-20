@@ -13,8 +13,6 @@ create dummy html view
 
 deploy and test from phone
 
-centralize strftime('%a')
-
 
 old
 ---
