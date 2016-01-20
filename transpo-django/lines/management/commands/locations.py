@@ -24,7 +24,8 @@ class Command(BaseCommand):
         else:
             self.list_locations()
 
-    def create_location(self, options):
+    @staticmethod
+    def create_location(options):
         if not options['user_id'] or not options['station_id']:
             raise CommandError('you must specify both user id and station ids')
 
@@ -40,7 +41,8 @@ class Command(BaseCommand):
         for station in stations:
             location.stations.add(station)
 
-    def delete_location(self, options):
+    @staticmethod
+    def delete_location(options):
         models.Location.objects.get(pk=options['delete']).delete()
 
     def list_locations(self):
