@@ -7,6 +7,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--create', '-c', metavar='name')
+        parser.add_argument('--list', '-l', action='store_true')
 
     def handle(self, *args, **options):
         if options['create']:
