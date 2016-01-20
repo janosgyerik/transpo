@@ -11,7 +11,7 @@ class Command(BaseCommand):
                             help='List of days, for example: Sat Sun weekdays')
         parser.add_argument('--times', '-t', nargs='+',
                             help='List of times, for example: 07:10 08:10')
-        parser.add_argument('--create', action='store_true',
+        parser.add_argument('--create', '-c', action='store_true',
                             help='Create specified days and times')
         parser.add_argument('--delete', action='store_true',
                             help='Delete specified days and times')
