@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = 'Manage lines'
 
     def add_arguments(self, parser):
-        parser.add_argument('--create', metavar='name')
+        parser.add_argument('--create', '-c', metavar='name')
 
     def handle(self, *args, **options):
         if options['create']:
