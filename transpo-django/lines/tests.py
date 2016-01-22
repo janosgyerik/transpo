@@ -21,13 +21,13 @@ class DailyTimesTestCase(TestCase):
 
     line_name = 'R5'
     station_name = 'Jaures'
-    weekday_times = [time(17, 6), time(17, 26), time(17, 46),
-                     time(18, 6), time(18, 26), time(18, 46)]
+
+    weekday_times = [time(17, 6), time(17, 26), time(17, 46), time(18, 6)]
     weekend_times = [time(9, 34), time(10, 34), time(11, 34)]
     saturday_times = [time(17, 6)]
 
-    def _times(self, dailytimes):
-        return [s.time for s in dailytimes]
+    def _times(self, times):
+        return [s.time for s in times]
 
     def next_weekday(self, weekday):
         d = timezone.now()
