@@ -23,6 +23,7 @@ class DailyTimesTestCase(TestCase):
     station_name = 'Jaures'
     weekday_times = [time(17, 6), time(17, 26), time(17, 46),
                      time(18, 6), time(18, 26), time(18, 46)]
+    weekend_times = [time(9, 34), time(10, 34), time(11, 34)]
     saturday_times = [time(17, 6)]
 
     def _times(self, dailytimes):
@@ -38,16 +39,26 @@ class DailyTimesTestCase(TestCase):
     def setUp(self):
         line = Line.objects.create(name=self.line_name)
         self.station = station = Station.objects.create(line=line, name=self.station_name)
-        station.register_daily_times(days=[DailySchedule.MONDAY, DailySchedule.TUESDAY], times=self.weekday_times)
+        station.register_daily_times(days=[DailySchedule.WEEKDAYS], times=self.weekday_times)
+        station.register_daily_times(days=[DailySchedule.WEEKENDS], times=self.weekend_times)
         station.register_daily_times(days=[DailySchedule.SATURDAY], times=self.saturday_times)
 
         dummy_line = Line.objects.create(name='dummy line')
         dummy_station = Station.objects.create(line=dummy_line, name='dummy station')
-        dummy_station.register_daily_times(days=[DailySchedule.MONDAY], times=self.weekday_times)
+        dummy_station.register_daily_times(days=[DailySchedule.WEEKDAYS], times=self.weekday_times)
         dummy_station.register_daily_times(days=[DailySchedule.SUNDAY], times=self.saturday_times)
 
-    def test_times_on_monday(self):
+    def test_mon_finds_weekdays(self):
         self.assertEquals(self.weekday_times, self._times(self.station.daily_times(self.next_weekday(0))))
+
+    def test_tue_finds_weekdays(self):
+        self.assertEquals(self.weekday_times, self._times(self.station.daily_times(self.next_weekday(1))))
+
+    def test_sat_finds_sat(self):
+        self.assertEquals(self.saturday_times, self._times(self.station.daily_times(self.next_weekday(5))))
+
+    def test_sun_finds_weekends(self):
+        self.assertEquals(self.weekend_times, self._times(self.station.daily_times(self.next_weekday(6))))
 
     def test_times_on_tuesday(self):
         self.assertEquals(
@@ -57,12 +68,6 @@ class DailyTimesTestCase(TestCase):
 
     def test_times_on_saturday(self):
         self.assertEquals(self.saturday_times, self._times(self.station.daily_times(self.next_weekday(5))))
-
-    def test_times_on_sunday(self):
-        self.assertEquals(0, len(self.station.daily_times(self.next_weekday(6))))
-
-    def test_next_times_when_empty(self):
-        self.assertEquals(0, len(self.station.next_daily_times(self.weekend_date)))
 
     def test_next_times_before_first(self):
         self.assertEquals(self.weekday_times, self._times(self.station.next_daily_times(self.weekday_date)))

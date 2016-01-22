@@ -25,14 +25,40 @@ class Station(models.Model):
         date = date.replace(hour=0, minute=0, second=0)
         return self.next_daily_times(date)
 
+    def find_daily_times(self, query, day):
+        # check for holiday
+        # TODO
+
+        # check for specific day
+        specific_day_query = query.filter(day=day)
+        if specific_day_query.exists():
+            return specific_day_query
+
+        # check for weekday or weekend
+        weekday_weekend_label = DailySchedule.weekday_weekend_label(day)
+        weekday_weekend_query = query.filter(day=weekday_weekend_label)
+        if weekday_weekend_query.exists():
+            return weekday_weekend_query
+
+        # check for daily
+        daily_query = query.filter(day=DailySchedule.DAILY)
+        if daily_query.exists():
+            return daily_query
+
+        return query
+
     def next_daily_times(self, date=None):
         query = self.dailyschedule_set.all()
         if date is not None:
             day = '{:%a}'.format(date)
+            query = self.find_daily_times(query, day)
+
             # note: strange that this doesn't work:
             # timestr = '{:%H:%M}'.format(date.time)
             timestr = date.strftime('%H:%M')
-            query = query.filter(day=day, time__gte=timestr)
+
+            return query.filter(time__gte=timestr)
+
         return query
 
     def register_dates(self, dates):
@@ -49,9 +75,18 @@ class Station(models.Model):
 class DailySchedule(models.Model):
     MONDAY = 'Mon'
     TUESDAY = 'Tue'
+    WEDNESDAY = 'Wed'
+    THURSDAY = 'Thu'
+    FRIDAY = 'Fri'
     SATURDAY = 'Sat'
     SUNDAY = 'Sun'
-    WEEKDAYS = [MONDAY, TUESDAY]
+
+    _WEEKDAYS = {MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY}
+    _WEEKENDS = {SATURDAY, SUNDAY}
+
+    WEEKDAYS = 'weekdays'
+    WEEKENDS = 'weekends'
+    DAILY = 'daily'
 
     station = models.ForeignKey(Station)
     day = models.CharField(max_length=30)
@@ -63,6 +98,14 @@ class DailySchedule(models.Model):
     @property
     def day_and_time(self):
         return '({}) {:%H:%M}'.format(self.day, self.time)
+
+    @staticmethod
+    def weekday_weekend_label(day):
+        if day in DailySchedule._WEEKDAYS:
+            return DailySchedule.WEEKDAYS
+        elif day in DailySchedule._WEEKENDS:
+            return DailySchedule.WEEKENDS
+        return 'ERROR'
 
 
 class GeneralSchedule(models.Model):
