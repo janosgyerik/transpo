@@ -19,9 +19,6 @@ class DailyTimesTestCase(TestCase):
     weekend_date = datetime(2016, 1, 10)
     weekend_datestr = weekend_date.strftime('%Y-%m-%d')
 
-    line_name = 'R5'
-    station_name = 'Jaures'
-
     weekday_times = [time(17, 6), time(17, 26), time(17, 46), time(18, 6)]
     weekend_times = [time(9, 34), time(10, 34), time(11, 34)]
     saturday_times = [time(17, 6)]
@@ -37,8 +34,11 @@ class DailyTimesTestCase(TestCase):
         return d + timedelta(days_ahead)
 
     def setUp(self):
-        line = Line.objects.create(name=self.line_name)
-        self.station = station = Station.objects.create(line=line, name=self.station_name)
+        line_name = 'R5'
+        station_name = 'Jaures'
+
+        line = Line.objects.create(name=line_name)
+        self.station = station = Station.objects.create(line=line, name=station_name)
         station.register_daily_times(days=[DailySchedule.WEEKDAYS], times=self.weekday_times)
         station.register_daily_times(days=[DailySchedule.WEEKENDS], times=self.weekend_times)
         station.register_daily_times(days=[DailySchedule.SATURDAY], times=self.saturday_times)
