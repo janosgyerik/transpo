@@ -45,7 +45,7 @@ class Station(models.Model):
         if daily_query.exists():
             return daily_query
 
-        return query
+        return DailySchedule.objects.none()
 
     def next_daily_times(self, date=None):
         query = self.dailyschedule_set.all()
