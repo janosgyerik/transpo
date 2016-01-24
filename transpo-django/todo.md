@@ -1,9 +1,6 @@
 TODO
 ====
 
-create dummy plain text view
-create dummy html view
-
 deploy and test from phone
 
 
