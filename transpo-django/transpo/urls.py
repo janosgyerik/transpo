@@ -17,7 +17,6 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
-    # url(r'^docs/', include('rest_framework_swagger.urls', namespace='rest_framework')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/v1/', include('api.urls')),
 ]
